@@ -28,6 +28,7 @@ import {
   CardTitle,
 } from '@/components/ui/card';
 import { useToast } from '@/hooks/use-toast';
+import { submitRecipeAction } from '@/app/actions';
 
 export default function SubmitRecipeForm() {
   const [isLoading, setIsLoading] = useState(false);
@@ -44,16 +45,29 @@ export default function SubmitRecipeForm() {
 
   const onSubmit = async (values: RecipeViabilityValues) => {
     setIsLoading(true);
-    // In a real app, you would send this to your backend.
-    // For this demo, we'll just simulate a network delay and show a success message.
-    await new Promise((resolve) => setTimeout(resolve, 1000));
+    const result = await submitRecipeAction(values);
 
-    toast({
-      title: 'Recipe Submitted!',
-      description:
-        'Thank you for sharing your recipe with the community.',
-    });
-    form.reset();
+    if (result.success && result.data?.wasViable) {
+      toast({
+        title: 'Recipe Submitted!',
+        description:
+          'Thank you for sharing your recipe with the community.',
+      });
+      form.reset();
+    } else if(result.success && !result.data?.wasViable) {
+      toast({
+        variant: 'destructive',
+        title: 'Submission Failed',
+        description: "Your recipe was not considered viable by our AI. Please try again with a different recipe."
+      });
+    } else {
+       toast({
+        variant: 'destructive',
+        title: 'Error',
+        description: result.error,
+      });
+    }
+
     setIsLoading(false);
   };
 
