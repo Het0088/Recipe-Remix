@@ -157,7 +157,7 @@ export default function RecipeGeneration() {
                         <div className="flex items-center gap-2">
                           <FormControl>
                             <Input
-                              placeholder={`e.g., Chicken breast, tomatoes, ...`}
+                              placeholder={`e.g., Tofu, tomatoes, ...`}
                               {...field}
                             />
                           </FormControl>
