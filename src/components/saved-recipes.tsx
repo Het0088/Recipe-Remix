@@ -16,6 +16,7 @@ import {
   Clock,
   BarChart,
   Globe,
+  Copy,
 } from 'lucide-react';
 import {
   AlertDialog,
@@ -30,7 +31,7 @@ import {
 } from '@/components/ui/alert-dialog';
 import { Badge } from './ui/badge';
 import { Separator } from './ui/separator';
-import { SocialShare } from './social-share';
+import { useToast } from '@/hooks/use-toast';
 
 function RecipeInfoBadges({ recipe }: { recipe: GenerateRecipeOutput }) {
   return (
@@ -60,6 +61,7 @@ function RecipeInfoBadges({ recipe }: { recipe: GenerateRecipeOutput }) {
 export default function SavedRecipes() {
   const [savedRecipes, setSavedRecipes] = useState<GenerateRecipeOutput[]>([]);
   const [isClient, setIsClient] = useState(false);
+  const { toast } = useToast();
 
   useEffect(() => {
     setIsClient(true);
@@ -85,6 +87,24 @@ export default function SavedRecipes() {
   const handleClearAll = () => {
     setSavedRecipes([]);
     localStorage.removeItem('savedRecipes');
+  };
+
+  const handleCopyRecipe = (recipe: GenerateRecipeOutput) => {
+    const recipeText = `
+Recipe: ${recipe.recipeName}
+
+Cuisine: ${recipe.cuisine}
+Difficulty: ${recipe.difficulty}
+Cooking Time: ${recipe.cookingTime}
+
+Ingredients:
+${recipe.ingredients.join('\n')}
+
+Instructions:
+${recipe.instructions}
+    `;
+    navigator.clipboard.writeText(recipeText.trim());
+    toast({ title: 'Recipe Copied!', description: 'The recipe has been copied to your clipboard.' });
   };
 
   if (!isClient) {
@@ -169,7 +189,14 @@ export default function SavedRecipes() {
               <Trash2 className="mr-2 h-4 w-4" />
               Remove
             </Button>
-            <SocialShare recipe={recipe} />
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => handleCopyRecipe(recipe)}
+            >
+              <Copy className="mr-2 h-4 w-4" />
+              Copy Recipe
+            </Button>
           </CardFooter>
         </Card>
       ))}

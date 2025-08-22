@@ -13,6 +13,7 @@ import {
   Clock,
   BarChart,
   Globe,
+  Copy,
 } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
@@ -43,7 +44,6 @@ import {
 import { Skeleton } from './ui/skeleton';
 import { Badge } from './ui/badge';
 import { Separator } from './ui/separator';
-import { SocialShare } from './social-share';
 
 function RecipeInfoBadges({ recipe }: { recipe: GenerateRecipeOutput }) {
   return (
@@ -96,6 +96,25 @@ function RecipeDisplay({ recipe }: { recipe: GenerateRecipeOutput }) {
     }
   };
 
+  const handleCopyRecipe = () => {
+    const recipeText = `
+Recipe: ${recipe.recipeName}
+
+Cuisine: ${recipe.cuisine}
+Difficulty: ${recipe.difficulty}
+Cooking Time: ${recipe.cookingTime}
+
+Ingredients:
+${recipe.ingredients.join('\n')}
+
+Instructions:
+${recipe.instructions}
+    `;
+    navigator.clipboard.writeText(recipeText.trim());
+    toast({ title: 'Recipe Copied!', description: 'The recipe has been copied to your clipboard.' });
+  };
+
+
   return (
     <Card className="mt-8 shadow-lg animate-in fade-in-50 duration-500">
       <CardHeader>
@@ -131,7 +150,10 @@ function RecipeDisplay({ recipe }: { recipe: GenerateRecipeOutput }) {
           <Bookmark className="mr-2 h-4 w-4" />
           Save Recipe
         </Button>
-        <SocialShare recipe={recipe} />
+        <Button variant="outline" onClick={handleCopyRecipe}>
+          <Copy className="mr-2 h-4 w-4" />
+          Copy Recipe
+        </Button>
       </CardFooter>
     </Card>
   );
