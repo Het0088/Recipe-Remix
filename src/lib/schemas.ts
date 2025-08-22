@@ -22,5 +22,12 @@ export const recipeViabilitySchema = z.object({
   }),
 });
 
+export const recipeVariationSchema = z.object({
+  variation: z
+    .string()
+    .min(3, { message: 'Variation request must be at least 3 characters.' }),
+});
+
 export type RecipeGenerationValues = z.infer<typeof recipeGenerationSchema>;
 export type RecipeViabilityValues = z.infer<typeof recipeViabilitySchema>;
+export type RecipeVariationValues = z.infer<typeof recipeVariationSchema>;

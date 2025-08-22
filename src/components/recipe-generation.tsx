@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { useFieldArray, useForm } from 'react-hook-form';
+import { useFieldArray, useForm, useFormState } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import Image from 'next/image';
 import {
@@ -16,6 +16,11 @@ import {
   Globe,
   Copy,
   Image as ImageIcon,
+  Flame,
+  Salad,
+  Wheat,
+  Beef,
+  CookingPot,
 } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
@@ -37,15 +42,26 @@ import {
   CardTitle,
 } from '@/components/ui/card';
 import { useToast } from '@/hooks/use-toast';
-import { generateRecipeAction, generateRecipeImageAction } from '@/app/actions';
+import {
+  generateRecipeAction,
+  generateRecipeImageAction,
+  generateRecipeVariationAction,
+} from '@/app/actions';
 import type { GenerateRecipeOutput } from '@/ai/flows/generate-recipe';
 import {
   recipeGenerationSchema,
+  recipeVariationSchema,
   type RecipeGenerationValues,
+  type RecipeVariationValues,
 } from '@/lib/schemas';
 import { Skeleton } from './ui/skeleton';
 import { Badge } from './ui/badge';
 import { Separator } from './ui/separator';
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from './ui/collapsible';
 
 function RecipeInfoBadges({ recipe }: { recipe: GenerateRecipeOutput }) {
   return (
@@ -66,7 +82,147 @@ function RecipeInfoBadges({ recipe }: { recipe: GenerateRecipeOutput }) {
   );
 }
 
-function RecipeDisplay({ recipe }: { recipe: GenerateRecipeOutput }) {
+function NutritionalInfoDisplay({
+  nutritionalInfo,
+}: {
+  nutritionalInfo: GenerateRecipeOutput['nutritionalInfo'];
+}) {
+  return (
+    <div>
+      <h3 className="text-xl font-bold font-headline mt-4 mb-2">
+        Nutritional Information
+      </h3>
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 text-center">
+        <Card className="p-4 bg-secondary/50">
+          <Flame className="h-6 w-6 text-primary mx-auto mb-1" />
+          <p className="font-bold text-lg">{nutritionalInfo.calories}</p>
+          <p className="text-xs text-muted-foreground">Calories</p>
+        </Card>
+        <Card className="p-4 bg-secondary/50">
+          <Beef className="h-6 w-6 text-primary mx-auto mb-1" />
+          <p className="font-bold text-lg">{nutritionalInfo.protein}</p>
+          <p className="text-xs text-muted-foreground">Protein</p>
+        </Card>
+        <Card className="p-4 bg-secondary/50">
+          <Wheat className="h-6 w-6 text-primary mx-auto mb-1" />
+          <p className="font-bold text-lg">{nutritionalInfo.carbs}</p>
+          <p className="text-xs text-muted-foreground">Carbs</p>
+        </Card>
+        <Card className="p-4 bg-secondary/50">
+          <Salad className="h-6 w-6 text-primary mx-auto mb-1" />
+          <p className="font-bold text-lg">{nutritionalInfo.fat}</p>
+          <p className="text-xs text-muted-foreground">Fat</p>
+        </Card>
+      </div>
+    </div>
+  );
+}
+
+function RecipeVariations({
+  originalRecipe,
+}: {
+  originalRecipe: GenerateRecipeOutput;
+}) {
+  const [isLoading, setIsLoading] = useState(false);
+  const [variationRecipe, setVariationRecipe] =
+    useState<GenerateRecipeOutput | null>(null);
+  const { toast } = useToast();
+
+  const form = useForm<RecipeVariationValues>({
+    resolver: zodResolver(recipeVariationSchema),
+    defaultValues: {
+      variation: '',
+    },
+  });
+
+  const onSubmit = async (values: RecipeVariationValues) => {
+    setIsLoading(true);
+    setVariationRecipe(null);
+    const result = await generateRecipeVariationAction({
+      recipe: originalRecipe,
+      variation: values.variation,
+    });
+
+    if (result.success) {
+      setVariationRecipe(result.data);
+    } else {
+      toast({
+        variant: 'destructive',
+        title: 'Error',
+        description: result.error,
+      });
+    }
+    setIsLoading(false);
+  };
+
+  return (
+    <div className="mt-6">
+      <Collapsible>
+        <CollapsibleTrigger asChild>
+          <Button variant="outline" className="w-full">
+            <Sparkles className="mr-2 h-4 w-4" />
+            Want to Change Something? Get Recipe Variations
+          </Button>
+        </CollapsibleTrigger>
+        <CollapsibleContent className="p-4 mt-2 border rounded-lg bg-background">
+          <Form {...form}>
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+              <FormField
+                control={form.control}
+                name="variation"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Variation Request</FormLabel>
+                    <FormControl>
+                      <Input
+                        placeholder="e.g., Make it vegan, gluten-free, spicier..."
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <div className="flex justify-end">
+                <Button type="submit" disabled={isLoading}>
+                  {isLoading ? (
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      Generating Variation...
+                    </>
+                  ) : (
+                    <>
+                      <CookingPot className="mr-2 h-4 w-4" />
+                      Generate Variation
+                    </>
+                  )}
+                </Button>
+              </div>
+            </form>
+          </Form>
+
+          {isLoading && <LoadingSkeleton />}
+          {variationRecipe && (
+            <div className="mt-6">
+              <h3 className="text-xl font-bold font-headline mb-4 text-center">
+                Your Recipe Variation
+              </h3>
+              <RecipeDisplay recipe={variationRecipe} isVariation />
+            </div>
+          )}
+        </CollapsibleContent>
+      </Collapsible>
+    </div>
+  );
+}
+
+function RecipeDisplay({
+  recipe,
+  isVariation = false,
+}: {
+  recipe: GenerateRecipeOutput;
+  isVariation?: boolean;
+}) {
   const { toast } = useToast();
   const [isSaving, setIsSaving] = useState(false);
   const [isGeneratingImage, setIsGeneratingImage] = useState(false);
@@ -78,7 +234,6 @@ function RecipeDisplay({ recipe }: { recipe: GenerateRecipeOutput }) {
       const savedRecipes: GenerateRecipeOutput[] = JSON.parse(
         localStorage.getItem('savedRecipes') || '[]'
       );
-      // Avoid saving duplicates
       if (!savedRecipes.some((r) => r.recipeName === recipe.recipeName)) {
         savedRecipes.push(recipe);
         localStorage.setItem('savedRecipes', JSON.stringify(savedRecipes));
@@ -113,6 +268,12 @@ Cuisine: ${recipe.cuisine}
 Difficulty: ${recipe.difficulty}
 Cooking Time: ${recipe.cookingTime}
 
+Nutritional Info:
+- Calories: ${recipe.nutritionalInfo.calories}
+- Protein: ${recipe.nutritionalInfo.protein}
+- Carbs: ${recipe.nutritionalInfo.carbs}
+- Fat: ${recipe.nutritionalInfo.fat}
+
 Ingredients:
 ${recipe.ingredients.join('\n')}
 
@@ -144,13 +305,21 @@ ${recipe.instructions}
   };
 
   return (
-    <Card className="mt-8 shadow-lg animate-in fade-in-50 duration-500">
+    <Card
+      className={`mt-8 shadow-lg animate-in fade-in-50 duration-500 ${
+        isVariation ? 'bg-card/90 border-primary' : ''
+      }`}
+    >
       <CardHeader>
         {isGeneratingImage && (
           <div className="flex flex-col items-center justify-center bg-muted/50 rounded-lg p-8 my-4 text-center">
-             <Loader2 className="h-8 w-8 animate-spin text-primary mb-4" />
-            <p className="text-lg font-medium text-foreground">Generating image...</p>
-             <p className="text-sm text-muted-foreground">This may take a moment.</p>
+            <Loader2 className="h-8 w-8 animate-spin text-primary mb-4" />
+            <p className="text-lg font-medium text-foreground">
+              Generating image...
+            </p>
+            <p className="text-sm text-muted-foreground">
+              This may take a moment.
+            </p>
           </div>
         )}
         {imageUrl && (
@@ -191,6 +360,8 @@ ${recipe.instructions}
             {recipe.instructions}
           </p>
         </div>
+        <Separator />
+        <NutritionalInfoDisplay nutritionalInfo={recipe.nutritionalInfo} />
       </CardContent>
       <CardFooter className="flex flex-wrap gap-2">
         <Button onClick={handleSaveRecipe} disabled={isSaving}>
@@ -218,6 +389,7 @@ ${recipe.instructions}
           Copy Recipe
         </Button>
       </CardFooter>
+      {!isVariation && <RecipeVariations originalRecipe={recipe} />}
     </Card>
   );
 }
@@ -251,6 +423,16 @@ function LoadingSkeleton() {
             <Skeleton className="h-4 w-full rounded-md" />
             <Skeleton className="h-4 w-5/6 rounded-md" />
             <Skeleton className="h-4 w-full rounded-md" />
+          </div>
+        </div>
+        <Separator />
+        <div>
+          <Skeleton className="h-6 w-1/2 rounded-md mb-4" />
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+            <Skeleton className="h-24 w-full rounded-lg" />
+            <Skeleton className="h-24 w-full rounded-lg" />
+            <Skeleton className="h-24 w-full rounded-lg" />
+            <Skeleton className="h-24 w-full rounded-lg" />
           </div>
         </div>
       </CardContent>
