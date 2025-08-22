@@ -66,6 +66,7 @@ import {
 } from './ui/collapsible';
 import { cn } from '@/lib/utils';
 import { Textarea } from './ui/textarea';
+import { Label } from './ui/label';
 
 function RecipeInfoBadges({ recipe }: { recipe: GenerateRecipeOutput }) {
   return (
