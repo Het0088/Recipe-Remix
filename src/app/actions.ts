@@ -2,6 +2,7 @@
 
 import { generateRecipe } from '@/ai/flows/generate-recipe';
 import { checkRecipeViability } from '@/ai/flows/check-recipe-viability';
+import { generateRecipeImage } from '@/ai/flows/generate-recipe-image';
 import type { RecipeViabilityValues } from '@/lib/schemas';
 
 export async function generateRecipeAction(data: { ingredients: string[] }) {
@@ -21,5 +22,15 @@ export async function checkRecipeViabilityAction(data: RecipeViabilityValues) {
   } catch (error) {
     console.error(error);
     return { success: false, error: 'Failed to check recipe viability. Please try again.' };
+  }
+}
+
+export async function generateRecipeImageAction(data: { recipeName: string }) {
+  try {
+    const result = await generateRecipeImage(data);
+    return { success: true, data: result };
+  } catch (error) {
+    console.error(error);
+    return { success: false, error: 'Failed to generate image. Please try again.' };
   }
 }

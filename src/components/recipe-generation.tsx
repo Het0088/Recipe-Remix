@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { useFieldArray, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
+import Image from 'next/image';
 import {
   Loader2,
   Minus,
@@ -14,6 +15,7 @@ import {
   BarChart,
   Globe,
   Copy,
+  Image as ImageIcon,
 } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
@@ -35,7 +37,7 @@ import {
   CardTitle,
 } from '@/components/ui/card';
 import { useToast } from '@/hooks/use-toast';
-import { generateRecipeAction } from '@/app/actions';
+import { generateRecipeAction, generateRecipeImageAction } from '@/app/actions';
 import type { GenerateRecipeOutput } from '@/ai/flows/generate-recipe';
 import {
   recipeGenerationSchema,
@@ -66,7 +68,12 @@ function RecipeInfoBadges({ recipe }: { recipe: GenerateRecipeOutput }) {
 
 function RecipeDisplay({ recipe }: { recipe: GenerateRecipeOutput }) {
   const { toast } = useToast();
+  const [isSaving, setIsSaving] = useState(false);
+  const [isGeneratingImage, setIsGeneratingImage] = useState(false);
+  const [imageUrl, setImageUrl] = useState<string | null>(null);
+
   const handleSaveRecipe = () => {
+    setIsSaving(true);
     try {
       const savedRecipes: GenerateRecipeOutput[] = JSON.parse(
         localStorage.getItem('savedRecipes') || '[]'
@@ -93,6 +100,8 @@ function RecipeDisplay({ recipe }: { recipe: GenerateRecipeOutput }) {
         description: 'Could not save recipe. Please try again.',
       });
       console.error('Failed to save recipe to local storage:', error);
+    } finally {
+      setIsSaving(false);
     }
   };
 
@@ -111,13 +120,51 @@ Instructions:
 ${recipe.instructions}
     `;
     navigator.clipboard.writeText(recipeText.trim());
-    toast({ title: 'Recipe Copied!', description: 'The recipe has been copied to your clipboard.' });
+    toast({
+      title: 'Recipe Copied!',
+      description: 'The recipe has been copied to your clipboard.',
+    });
   };
 
+  const handleGenerateImage = async () => {
+    setIsGeneratingImage(true);
+    const result = await generateRecipeImageAction({
+      recipeName: recipe.recipeName,
+    });
+    if (result.success) {
+      setImageUrl(result.data.imageUrl);
+    } else {
+      toast({
+        variant: 'destructive',
+        title: 'Image Generation Failed',
+        description: result.error,
+      });
+    }
+    setIsGeneratingImage(false);
+  };
 
   return (
     <Card className="mt-8 shadow-lg animate-in fade-in-50 duration-500">
       <CardHeader>
+        {isGeneratingImage && (
+          <div className="flex flex-col items-center justify-center bg-muted/50 rounded-lg p-8 my-4 text-center">
+             <Loader2 className="h-8 w-8 animate-spin text-primary mb-4" />
+            <p className="text-lg font-medium text-foreground">Generating image...</p>
+             <p className="text-sm text-muted-foreground">This may take a moment.</p>
+          </div>
+        )}
+        {imageUrl && (
+          <div className="mb-4 rounded-lg overflow-hidden shadow-inner">
+            <Image
+              src={imageUrl}
+              alt={`An image of ${recipe.recipeName}`}
+              width={600}
+              height={400}
+              className="w-full h-auto object-cover"
+              data-ai-hint="recipe food"
+            />
+          </div>
+        )}
         <CardTitle className="text-3xl font-headline text-accent">
           {recipe.recipeName}
         </CardTitle>
@@ -145,10 +192,26 @@ ${recipe.instructions}
           </p>
         </div>
       </CardContent>
-      <CardFooter className="gap-2">
-        <Button onClick={handleSaveRecipe}>
+      <CardFooter className="flex flex-wrap gap-2">
+        <Button onClick={handleSaveRecipe} disabled={isSaving}>
           <Bookmark className="mr-2 h-4 w-4" />
-          Save Recipe
+          {isSaving ? 'Saving...' : 'Save Recipe'}
+        </Button>
+        <Button
+          onClick={handleGenerateImage}
+          disabled={isGeneratingImage || !!imageUrl}
+          variant="secondary"
+        >
+          {isGeneratingImage ? (
+            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+          ) : (
+            <ImageIcon className="mr-2 h-4 w-4" />
+          )}
+          {imageUrl
+            ? 'Image Generated'
+            : isGeneratingImage
+            ? 'Generating...'
+            : 'Generate Image'}
         </Button>
         <Button variant="outline" onClick={handleCopyRecipe}>
           <Copy className="mr-2 h-4 w-4" />
@@ -260,7 +323,7 @@ export default function RecipeGeneration() {
                         <div className="flex items-center gap-2">
                           <FormControl>
                             <Input
-                              placeholder={`e.g., Tofu, tomatoes, ...`}
+                              placeholder={'e.g., Tofu, tomatoes, ...'}
                               {...field}
                             />
                           </FormControl>
