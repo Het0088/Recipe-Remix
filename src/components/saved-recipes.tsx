@@ -1,0 +1,135 @@
+'use client';
+
+import { useState, useEffect } from 'react';
+import type { GenerateRecipeOutput } from '@/ai/flows/generate-recipe';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card';
+import { Button } from './ui/button';
+import { Trash2 } from 'lucide-react';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from '@/components/ui/alert-dialog';
+
+export default function SavedRecipes() {
+  const [savedRecipes, setSavedRecipes] = useState<GenerateRecipeOutput[]>([]);
+  const [isClient, setIsClient] = useState(false);
+
+  useEffect(() => {
+    setIsClient(true);
+    try {
+      const recipesFromStorage = JSON.parse(
+        localStorage.getItem('savedRecipes') || '[]'
+      );
+      setSavedRecipes(recipesFromStorage);
+    } catch (error) {
+      console.error('Failed to load recipes from local storage:', error);
+      setSavedRecipes([]);
+    }
+  }, []);
+
+  const handleRemoveRecipe = (recipeName: string) => {
+    const updatedRecipes = savedRecipes.filter(
+      (r) => r.recipeName !== recipeName
+    );
+    setSavedRecipes(updatedRecipes);
+    localStorage.setItem('savedRecipes', JSON.stringify(updatedRecipes));
+  };
+  
+  const handleClearAll = () => {
+    setSavedRecipes([]);
+    localStorage.removeItem('savedRecipes');
+  };
+
+  if (!isClient) {
+    // Render a loading state or nothing on the server
+    return null;
+  }
+
+  if (savedRecipes.length === 0) {
+    return (
+      <div className="text-center py-16 px-4 bg-card/80 rounded-lg shadow-inner">
+        <h2 className="text-2xl font-headline text-primary">No Recipes Saved Yet</h2>
+        <p className="text-foreground/70 mt-2">
+          Go to the 'Generate Recipe' page to create and save new recipes!
+        </p>
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-8">
+       <div className="text-right">
+        <AlertDialog>
+          <AlertDialogTrigger asChild>
+            <Button variant="destructive" size="sm">
+              <Trash2 className="mr-2 h-4 w-4" /> Clear All
+            </Button>
+          </AlertDialogTrigger>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+              <AlertDialogDescription>
+                This action cannot be undone. This will permanently delete all your saved recipes.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel>Cancel</AlertDialogCancel>
+              <AlertDialogAction onClick={handleClearAll}>
+                Yes, delete all
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
+      </div>
+      {savedRecipes.map((recipe, index) => (
+        <Card key={index} className="shadow-lg">
+          <CardHeader>
+            <CardTitle className="text-3xl font-headline text-accent">
+              {recipe.recipeName}
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-6">
+            <div>
+              <h3 className="text-xl font-bold font-headline mb-2">Ingredients</h3>
+              <ul className="list-disc list-inside space-y-1 text-foreground/90">
+                {recipe.ingredients.map((ingredient, i) => (
+                  <li key={i}>{ingredient}</li>
+                ))}
+              </ul>
+            </div>
+            <div>
+              <h3 className="text-xl font-bold font-headline mb-2">Instructions</h3>
+              <p className="whitespace-pre-line leading-relaxed text-foreground/90">
+                {recipe.instructions}
+              </p>
+            </div>
+          </CardContent>
+          <CardFooter>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => handleRemoveRecipe(recipe.recipeName)}
+            >
+              <Trash2 className="mr-2 h-4 w-4" />
+              Remove
+            </Button>
+          </CardFooter>
+        </Card>
+      ))}
+    </div>
+  );
+}

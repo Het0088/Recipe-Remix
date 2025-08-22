@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { useFieldArray, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Loader2, Minus, Plus, Sparkles, UtensilsCrossed } from 'lucide-react';
+import { Loader2, Minus, Plus, Sparkles, UtensilsCrossed, Bookmark } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
 import {
@@ -19,6 +19,7 @@ import {
   Card,
   CardContent,
   CardDescription,
+  CardFooter,
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
@@ -32,6 +33,37 @@ import {
 import { Skeleton } from './ui/skeleton';
 
 function RecipeDisplay({ recipe }: { recipe: GenerateRecipeOutput }) {
+  const { toast } = useToast();
+  const handleSaveRecipe = () => {
+    try {
+      const savedRecipes: GenerateRecipeOutput[] = JSON.parse(
+        localStorage.getItem('savedRecipes') || '[]'
+      );
+      // Avoid saving duplicates
+      if (!savedRecipes.some((r) => r.recipeName === recipe.recipeName)) {
+        savedRecipes.push(recipe);
+        localStorage.setItem('savedRecipes', JSON.stringify(savedRecipes));
+        toast({
+          title: 'Recipe Saved!',
+          description: `'${recipe.recipeName}' has been added to your saved recipes.`,
+        });
+      } else {
+        toast({
+          variant: 'destructive',
+          title: 'Already Saved',
+          description: 'This recipe is already in your saved list.',
+        });
+      }
+    } catch (error) {
+      toast({
+        variant: 'destructive',
+        title: 'Error',
+        description: 'Could not save recipe. Please try again.',
+      });
+      console.error('Failed to save recipe to local storage:', error);
+    }
+  };
+
   return (
     <Card className="mt-8 shadow-lg animate-in fade-in-50 duration-500">
       <CardHeader>
@@ -58,6 +90,12 @@ function RecipeDisplay({ recipe }: { recipe: GenerateRecipeOutput }) {
           </p>
         </div>
       </CardContent>
+      <CardFooter>
+        <Button onClick={handleSaveRecipe} variant="outline">
+          <Bookmark className="mr-2 h-4 w-4" />
+          Save Recipe
+        </Button>
+      </CardFooter>
     </Card>
   );
 }
