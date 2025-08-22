@@ -12,17 +12,11 @@
 
 import { ai } from '@/ai/genkit';
 import { z } from 'genkit';
-import { GenerateRecipeOutputSchema } from '@/ai/schemas';
+import {
+  GenerateRecipeOutputSchema,
+  GenerateRecipeVariationInputSchema,
+} from '@/ai/schemas';
 import type { GenerateRecipeOutput } from '@/ai/flows/generate-recipe';
-
-export const GenerateRecipeVariationInputSchema = z.object({
-  recipe: GenerateRecipeOutputSchema.describe('The original recipe to modify.'),
-  variation: z
-    .string()
-    .describe(
-      'The requested variation (e.g., "make it vegan", "make it spicier", "double the servings").'
-    ),
-});
 
 export type GenerateRecipeVariationInput = z.infer<
   typeof GenerateRecipeVariationInputSchema

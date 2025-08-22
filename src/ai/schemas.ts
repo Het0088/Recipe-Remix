@@ -30,3 +30,12 @@ export const GenerateRecipeOutputSchema = z.object({
     })
     .describe('The estimated nutritional information per serving.'),
 });
+
+export const GenerateRecipeVariationInputSchema = z.object({
+  recipe: GenerateRecipeOutputSchema.describe('The original recipe to modify.'),
+  variation: z
+    .string()
+    .describe(
+      'The requested variation (e.g., "make it vegan", "make it spicier", "double the servings").'
+    ),
+});
