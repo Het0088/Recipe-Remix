@@ -16,7 +16,6 @@ import {
   Clock,
   BarChart,
   Globe,
-  Share2,
 } from 'lucide-react';
 import {
   AlertDialog,
@@ -31,65 +30,7 @@ import {
 } from '@/components/ui/alert-dialog';
 import { Badge } from './ui/badge';
 import { Separator } from './ui/separator';
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
-
-function SocialShare({ recipe }: { recipe: GenerateRecipeOutput }) {
-  const shareText = `Check out this recipe: ${
-    recipe.recipeName
-  }! Ingredients: ${recipe.ingredients.join(
-    ', '
-  )}. Instructions: ${recipe.instructions.substring(0, 100)}...`;
-  const encodedShareText = encodeURIComponent(shareText);
-  const pageUrl =
-    typeof window !== 'undefined' ? window.location.href : '';
-
-  const socialLinks = {
-    twitter: `https://twitter.com/intent/tweet?text=${encodedShareText}&url=${pageUrl}`,
-    facebook: `https://www.facebook.com/sharer/sharer.php?u=${pageUrl}&quote=${encodedShareText}`,
-    pinterest: `https://pinterest.com/pin/create/button/?url=${pageUrl}&media=&description=${encodedShareText}`,
-  };
-
-  return (
-    <DropdownMenu>
-      <DropdownMenuTrigger asChild>
-        <Button variant="ghost" size="sm">
-          <Share2 className="mr-2 h-4 w-4" />
-          Share
-        </Button>
-      </DropdownMenuTrigger>
-      <DropdownMenuContent>
-        <DropdownMenuItem asChild>
-          <a href={socialLinks.twitter} target="_blank" rel="noopener noreferrer">
-            Share on Twitter
-          </a>
-        </DropdownMenuItem>
-        <DropdownMenuItem asChild>
-          <a
-            href={socialLinks.facebook}
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Share on Facebook
-          </a>
-        </DropdownMenuItem>
-        <DropdownMenuItem asChild>
-          <a
-            href={socialLinks.pinterest}
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Pin on Pinterest
-          </a>
-        </DropdownMenuItem>
-      </DropdownMenuContent>
-    </DropdownMenu>
-  );
-}
+import { SocialShare } from './social-share';
 
 function RecipeInfoBadges({ recipe }: { recipe: GenerateRecipeOutput }) {
   return (
