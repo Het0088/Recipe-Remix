@@ -2,14 +2,8 @@ import SavedRecipes from '@/components/saved-recipes';
 
 export default function SavedRecipesPage() {
   return (
-    <div
-      className="bg-cover bg-center bg-no-repeat flex-1"
-      style={{
-        backgroundImage: "url('https://placehold.co/1920x1080.png')",
-      }}
-      data-ai-hint="recipe book shelf"
-    >
-      <div className="bg-background/80 backdrop-blur-sm min-h-full">
+    <div className="flex-1">
+      <div className="bg-background min-h-full">
         <div className="container mx-auto max-w-4xl py-12 px-4">
           <div className="text-center mb-12">
             <h1 className="text-4xl md:text-5xl font-bold font-headline tracking-tight text-primary">
