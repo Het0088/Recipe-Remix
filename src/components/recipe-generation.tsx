@@ -65,6 +65,7 @@ import {
   CollapsibleTrigger,
 } from './ui/collapsible';
 import { cn } from '@/lib/utils';
+import { Textarea } from './ui/textarea';
 
 function RecipeInfoBadges({ recipe }: { recipe: GenerateRecipeOutput }) {
   return (
@@ -160,6 +161,79 @@ function ChefFeedback({
           </p>
         </CardContent>
       </Card>
+    </div>
+  );
+}
+
+function UserFeedback() {
+  const [rating, setRating] = useState(0);
+  const [hoverRating, setHoverRating] = useState(0);
+  const [feedback, setFeedback] = useState('');
+  const { toast } = useToast();
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    toast({
+      title: 'Feedback Submitted!',
+      description: 'Thank you for your feedback.',
+    });
+    setRating(0);
+    setHoverRating(0);
+    setFeedback('');
+  };
+
+  return (
+    <div className="mt-6">
+      <Separator className="my-6" />
+      <h3 className="text-xl font-bold font-headline mb-4">
+        Rate this Recipe
+      </h3>
+      <form onSubmit={handleSubmit} className="space-y-4">
+        <div className="flex items-center gap-2">
+          <span className="text-muted-foreground">Your Rating:</span>
+          <div className="flex items-center">
+            {[...Array(5)].map((_, i) => {
+              const starValue = i + 1;
+              return (
+                <button
+                  type="button"
+                  key={starValue}
+                  onClick={() => setRating(starValue)}
+                  onMouseEnter={() => setHoverRating(starValue)}
+                  onMouseLeave={() => setHoverRating(0)}
+                  className="p-1"
+                >
+                  <Star
+                    className={cn(
+                      'h-6 w-6 transition-colors',
+                      starValue <= (hoverRating || rating)
+                        ? 'text-primary fill-primary'
+                        : 'text-muted-foreground/50'
+                    )}
+                  />
+                </button>
+              );
+            })}
+          </div>
+        </div>
+        <div>
+          <Label htmlFor="feedback" className="sr-only">
+            Your Feedback
+          </Label>
+          <Textarea
+            id="feedback"
+            placeholder="Share your experience or suggestions..."
+            value={feedback}
+            onChange={(e) => setFeedback(e.target.value)}
+            className="min-h-[100px]"
+          />
+        </div>
+        <div className="flex justify-end">
+          <Button type="submit" variant="secondary">
+            Submit Feedback
+          </Button>
+        </div>
+      </form>
     </div>
   );
 }
@@ -413,6 +487,7 @@ ${recipe.chefNotes}
         <NutritionalInfoDisplay nutritionalInfo={recipe.nutritionalInfo} />
         <Separator />
         <ChefFeedback rating={recipe.rating} chefNotes={recipe.chefNotes} />
+        <UserFeedback />
       </CardContent>
       <CardFooter className="flex flex-wrap gap-2">
         <Button onClick={handleSaveRecipe} disabled={isSaving}>
