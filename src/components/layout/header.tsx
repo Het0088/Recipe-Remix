@@ -15,8 +15,6 @@ import {
 
 const navItems = [
   { href: '/', label: 'Generate Recipe' },
-  { href: '/check-viability', label: 'Check Viability' },
-  { href: '/submit-recipe', label: 'Submit Recipe' },
   { href: '/saved-recipes', label: 'Saved Recipes' },
 ];
 
