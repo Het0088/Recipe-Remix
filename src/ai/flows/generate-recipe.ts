@@ -22,6 +22,9 @@ const GenerateRecipeOutputSchema = z.object({
   recipeName: z.string().describe('The name of the generated recipe.'),
   ingredients: z.array(z.string()).describe('The ingredients required for the recipe.'),
   instructions: z.string().describe('The instructions for preparing the recipe.'),
+  difficulty: z.string().describe('The difficulty level of the recipe (e.g., Easy, Medium, Hard).'),
+  cookingTime: z.string().describe('The estimated cooking time for the recipe (e.g., "30 minutes").'),
+  cuisine: z.string().describe('The cuisine type of the recipe (e.g., Italian, Mexican).'),
 });
 export type GenerateRecipeOutput = z.infer<typeof GenerateRecipeOutputSchema>;
 
@@ -37,6 +40,7 @@ const prompt = ai.definePrompt({
 
   Create a recipe based on the following ingredients: {{{ingredients}}}.
   The recipe should include a name, a list of ingredients, and detailed instructions.
+  Also include the difficulty level (Easy, Medium, or Hard), the estimated cooking time, and the cuisine type.
   Make sure the recipe is easy to follow.
   `,
 });

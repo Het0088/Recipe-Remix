@@ -11,7 +11,13 @@ import {
   CardTitle,
 } from '@/components/ui/card';
 import { Button } from './ui/button';
-import { Trash2 } from 'lucide-react';
+import {
+  Trash2,
+  Clock,
+  BarChart,
+  Globe,
+  Share2,
+} from 'lucide-react';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -23,6 +29,92 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from '@/components/ui/alert-dialog';
+import { Badge } from './ui/badge';
+import { Separator } from './ui/separator';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
+
+function SocialShare({ recipe }: { recipe: GenerateRecipeOutput }) {
+  const shareText = `Check out this recipe: ${
+    recipe.recipeName
+  }! Ingredients: ${recipe.ingredients.join(
+    ', '
+  )}. Instructions: ${recipe.instructions.substring(0, 100)}...`;
+  const encodedShareText = encodeURIComponent(shareText);
+  const pageUrl =
+    typeof window !== 'undefined' ? window.location.href : '';
+
+  const socialLinks = {
+    twitter: `https://twitter.com/intent/tweet?text=${encodedShareText}&url=${pageUrl}`,
+    facebook: `https://www.facebook.com/sharer/sharer.php?u=${pageUrl}&quote=${encodedShareText}`,
+    pinterest: `https://pinterest.com/pin/create/button/?url=${pageUrl}&media=&description=${encodedShareText}`,
+  };
+
+  return (
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <Button variant="ghost" size="sm">
+          <Share2 className="mr-2 h-4 w-4" />
+          Share
+        </Button>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent>
+        <DropdownMenuItem asChild>
+          <a href={socialLinks.twitter} target="_blank" rel="noopener noreferrer">
+            Share on Twitter
+          </a>
+        </DropdownMenuItem>
+        <DropdownMenuItem asChild>
+          <a
+            href={socialLinks.facebook}
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            Share on Facebook
+          </a>
+        </DropdownMenuItem>
+        <DropdownMenuItem asChild>
+          <a
+            href={socialLinks.pinterest}
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            Pin on Pinterest
+          </a>
+        </DropdownMenuItem>
+      </DropdownMenuContent>
+    </DropdownMenu>
+  );
+}
+
+function RecipeInfoBadges({ recipe }: { recipe: GenerateRecipeOutput }) {
+  return (
+    <div className="flex flex-wrap gap-2 items-center mb-4">
+      {recipe.cookingTime && (
+        <Badge variant="secondary" className="flex items-center gap-1">
+          <Clock className="h-3 w-3" />
+          {recipe.cookingTime}
+        </Badge>
+      )}
+      {recipe.difficulty && (
+        <Badge variant="secondary" className="flex items-center gap-1">
+          <BarChart className="h-3 w-3" />
+          {recipe.difficulty}
+        </Badge>
+      )}
+      {recipe.cuisine && (
+        <Badge variant="secondary" className="flex items-center gap-1">
+          <Globe className="h-3 w-3" />
+          {recipe.cuisine}
+        </Badge>
+      )}
+    </div>
+  );
+}
 
 export default function SavedRecipes() {
   const [savedRecipes, setSavedRecipes] = useState<GenerateRecipeOutput[]>([]);
@@ -48,7 +140,7 @@ export default function SavedRecipes() {
     setSavedRecipes(updatedRecipes);
     localStorage.setItem('savedRecipes', JSON.stringify(updatedRecipes));
   };
-  
+
   const handleClearAll = () => {
     setSavedRecipes([]);
     localStorage.removeItem('savedRecipes');
@@ -62,7 +154,9 @@ export default function SavedRecipes() {
   if (savedRecipes.length === 0) {
     return (
       <div className="text-center py-16 px-4 bg-card/80 rounded-lg shadow-inner">
-        <h2 className="text-2xl font-headline text-primary">No Recipes Saved Yet</h2>
+        <h2 className="text-2xl font-headline text-primary">
+          No Recipes Saved Yet
+        </h2>
         <p className="text-foreground/70 mt-2">
           Go to the 'Generate Recipe' page to create and save new recipes!
         </p>
@@ -72,7 +166,7 @@ export default function SavedRecipes() {
 
   return (
     <div className="space-y-8">
-       <div className="text-right">
+      <div className="text-right">
         <AlertDialog>
           <AlertDialogTrigger asChild>
             <Button variant="destructive" size="sm">
@@ -83,7 +177,8 @@ export default function SavedRecipes() {
             <AlertDialogHeader>
               <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
               <AlertDialogDescription>
-                This action cannot be undone. This will permanently delete all your saved recipes.
+                This action cannot be undone. This will permanently delete all
+                your saved recipes.
               </AlertDialogDescription>
             </AlertDialogHeader>
             <AlertDialogFooter>
@@ -103,8 +198,12 @@ export default function SavedRecipes() {
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-6">
+            <RecipeInfoBadges recipe={recipe} />
+            <Separator />
             <div>
-              <h3 className="text-xl font-bold font-headline mb-2">Ingredients</h3>
+              <h3 className="text-xl font-bold font-headline mt-4 mb-2">
+                Ingredients
+              </h3>
               <ul className="list-disc list-inside space-y-1 text-foreground/90">
                 {recipe.ingredients.map((ingredient, i) => (
                   <li key={i}>{ingredient}</li>
@@ -112,13 +211,15 @@ export default function SavedRecipes() {
               </ul>
             </div>
             <div>
-              <h3 className="text-xl font-bold font-headline mb-2">Instructions</h3>
+              <h3 className="text-xl font-bold font-headline mb-2">
+                Instructions
+              </h3>
               <p className="whitespace-pre-line leading-relaxed text-foreground/90">
                 {recipe.instructions}
               </p>
             </div>
           </CardContent>
-          <CardFooter>
+          <CardFooter className="justify-between">
             <Button
               variant="outline"
               size="sm"
@@ -127,6 +228,7 @@ export default function SavedRecipes() {
               <Trash2 className="mr-2 h-4 w-4" />
               Remove
             </Button>
+            <SocialShare recipe={recipe} />
           </CardFooter>
         </Card>
       ))}

@@ -3,7 +3,24 @@
 import { useState } from 'react';
 import { useFieldArray, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Loader2, Minus, Plus, Sparkles, UtensilsCrossed, Bookmark } from 'lucide-react';
+import {
+  Loader2,
+  Minus,
+  Plus,
+  Sparkles,
+  UtensilsCrossed,
+  Bookmark,
+  Clock,
+  BarChart,
+  Globe,
+  Share2,
+} from 'lucide-react';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 
 import { Button } from '@/components/ui/button';
 import {
@@ -31,6 +48,79 @@ import {
   type RecipeGenerationValues,
 } from '@/lib/schemas';
 import { Skeleton } from './ui/skeleton';
+import { Badge } from './ui/badge';
+import { Separator } from './ui/separator';
+
+function SocialShare({ recipe }: { recipe: GenerateRecipeOutput }) {
+  const shareText = `Check out this recipe I generated with AI: ${
+    recipe.recipeName
+  }! Ingredients: ${recipe.ingredients.join(
+    ', '
+  )}. Instructions: ${recipe.instructions.substring(0, 100)}...`;
+  const encodedShareText = encodeURIComponent(shareText);
+  const pageUrl =
+    typeof window !== 'undefined' ? window.location.href : '';
+
+  const socialLinks = {
+    twitter: `https://twitter.com/intent/tweet?text=${encodedShareText}&url=${pageUrl}`,
+    facebook: `https://www.facebook.com/sharer/sharer.php?u=${pageUrl}&quote=${encodedShareText}`,
+    pinterest: `https://pinterest.com/pin/create/button/?url=${pageUrl}&media=&description=${encodedShareText}`,
+  };
+  return (
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <Button variant="outline">
+          <Share2 className="mr-2 h-4 w-4" />
+          Share
+        </Button>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent>
+        <DropdownMenuItem asChild>
+          <a href={socialLinks.twitter} target="_blank" rel="noopener noreferrer">
+            Share on Twitter
+          </a>
+        </DropdownMenuItem>
+        <DropdownMenuItem asChild>
+          <a
+            href={socialLinks.facebook}
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            Share on Facebook
+          </a>
+        </DropdownMenuItem>
+        <DropdownMenuItem asChild>
+          <a
+            href={socialLinks.pinterest}
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            Pin on Pinterest
+          </a>
+        </DropdownMenuItem>
+      </DropdownMenuContent>
+    </DropdownMenu>
+  );
+}
+
+function RecipeInfoBadges({ recipe }: { recipe: GenerateRecipeOutput }) {
+  return (
+    <div className="flex flex-wrap gap-2 items-center mb-4">
+      <Badge variant="secondary" className="flex items-center gap-1">
+        <Clock className="h-3 w-3" />
+        {recipe.cookingTime}
+      </Badge>
+      <Badge variant="secondary" className="flex items-center gap-1">
+        <BarChart className="h-3 w-3" />
+        {recipe.difficulty}
+      </Badge>
+      <Badge variant="secondary" className="flex items-center gap-1">
+        <Globe className="h-3 w-3" />
+        {recipe.cuisine}
+      </Badge>
+    </div>
+  );
+}
 
 function RecipeDisplay({ recipe }: { recipe: GenerateRecipeOutput }) {
   const { toast } = useToast();
@@ -75,8 +165,12 @@ function RecipeDisplay({ recipe }: { recipe: GenerateRecipeOutput }) {
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-6">
+        <RecipeInfoBadges recipe={recipe} />
+        <Separator />
         <div>
-          <h3 className="text-xl font-bold font-headline mb-2">Ingredients</h3>
+          <h3 className="text-xl font-bold font-headline mt-4 mb-2">
+            Ingredients
+          </h3>
           <ul className="list-disc list-inside space-y-1 text-foreground/90">
             {recipe.ingredients.map((ingredient, index) => (
               <li key={index}>{ingredient}</li>
@@ -90,44 +184,51 @@ function RecipeDisplay({ recipe }: { recipe: GenerateRecipeOutput }) {
           </p>
         </div>
       </CardContent>
-      <CardFooter>
-        <Button onClick={handleSaveRecipe} variant="outline">
+      <CardFooter className="gap-2">
+        <Button onClick={handleSaveRecipe}>
           <Bookmark className="mr-2 h-4 w-4" />
           Save Recipe
         </Button>
+        <SocialShare recipe={recipe} />
       </CardFooter>
     </Card>
   );
 }
 
 function LoadingSkeleton() {
-    return (
-        <Card className="mt-8 shadow-lg">
-            <CardHeader>
-                <Skeleton className="h-8 w-3/4 rounded-md" />
-                <Skeleton className="h-4 w-1/2 rounded-md mt-2" />
-            </CardHeader>
-            <CardContent className="space-y-6">
-                <div>
-                    <Skeleton className="h-6 w-1/4 rounded-md mb-4" />
-                    <div className="space-y-2">
-                        <Skeleton className="h-4 w-full rounded-md" />
-                        <Skeleton className="h-4 w-5/6 rounded-md" />
-                        <Skeleton className="h-4 w-full rounded-md" />
-                    </div>
-                </div>
-                <div>
-                    <Skeleton className="h-6 w-1/3 rounded-md mb-4" />
-                    <div className="space-y-2">
-                        <Skeleton className="h-4 w-full rounded-md" />
-                        <Skeleton className="h-4 w-full rounded-md" />
-                        <Skeleton className="h-4 w-5/6 rounded-md" />
-                        <Skeleton className="h-4 w-full rounded-md" />
-                    </div>
-                </div>
-            </CardContent>
-        </Card>
-    )
+  return (
+    <Card className="mt-8 shadow-lg">
+      <CardHeader>
+        <Skeleton className="h-8 w-3/4 rounded-md" />
+        <Skeleton className="h-4 w-1/2 rounded-md mt-2" />
+      </CardHeader>
+      <CardContent className="space-y-6">
+        <div className="flex gap-2">
+          <Skeleton className="h-6 w-24 rounded-full" />
+          <Skeleton className="h-6 w-20 rounded-full" />
+          <Skeleton className="h-6 w-28 rounded-full" />
+        </div>
+        <Separator />
+        <div>
+          <Skeleton className="h-6 w-1/4 rounded-md mb-4 mt-4" />
+          <div className="space-y-2">
+            <Skeleton className="h-4 w-full rounded-md" />
+            <Skeleton className="h-4 w-5/6 rounded-md" />
+            <Skeleton className="h-4 w-full rounded-md" />
+          </div>
+        </div>
+        <div>
+          <Skeleton className="h-6 w-1/3 rounded-md mb-4" />
+          <div className="space-y-2">
+            <Skeleton className="h-4 w-full rounded-md" />
+            <Skeleton className="h-4 w-full rounded-md" />
+            <Skeleton className="h-4 w-5/6 rounded-md" />
+            <Skeleton className="h-4 w-full rounded-md" />
+          </div>
+        </div>
+      </CardContent>
+    </Card>
+  );
 }
 
 export default function RecipeGeneration() {
