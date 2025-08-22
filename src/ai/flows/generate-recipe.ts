@@ -34,8 +34,6 @@ const prompt = ai.definePrompt({
   The recipe should include a name, a list of ingredients, and detailed instructions.
   Also include the difficulty level (Easy, Medium, or Hard), the estimated cooking time, and the cuisine type.
   Provide an estimated nutritional information breakdown per serving, including calories, protein, carbs, and fat.
-  Give the recipe a rating from 1 to 5 stars.
-  Finally, provide some "Chef's Notes" with extra tips, serving suggestions, or interesting facts about the dish.
   Make sure the recipe is easy to follow.
   `,
 });

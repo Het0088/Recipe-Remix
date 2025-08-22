@@ -29,16 +29,6 @@ export const GenerateRecipeOutputSchema = z.object({
       fat: z.string().describe('Estimated fat in grams per serving.'),
     })
     .describe('The estimated nutritional information per serving.'),
-  rating: z
-    .number()
-    .min(1)
-    .max(5)
-    .describe('A rating for the recipe from 1 to 5.'),
-  chefNotes: z
-    .string()
-    .describe(
-      "Additional notes from the chef, such as tips, variations, or pairing suggestions."
-    ),
 });
 
 export const GenerateRecipeVariationInputSchema = z.object({
