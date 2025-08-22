@@ -21,6 +21,8 @@ import {
   Wheat,
   Beef,
   CookingPot,
+  Star,
+  MessageSquareQuote,
 } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
@@ -62,6 +64,7 @@ import {
   CollapsibleContent,
   CollapsibleTrigger,
 } from './ui/collapsible';
+import { cn } from '@/lib/utils';
 
 function RecipeInfoBadges({ recipe }: { recipe: GenerateRecipeOutput }) {
   return (
@@ -114,6 +117,49 @@ function NutritionalInfoDisplay({
           <p className="text-xs text-muted-foreground">Fat</p>
         </Card>
       </div>
+    </div>
+  );
+}
+
+function ChefFeedback({
+  rating,
+  chefNotes,
+}: {
+  rating: number;
+  chefNotes: string;
+}) {
+  return (
+    <div>
+      <h3 className="text-xl font-bold font-headline mt-4 mb-2">
+        Rating & Chef's Notes
+      </h3>
+      <div className="flex items-center gap-2 mb-4">
+        <div className="flex items-center">
+          {[...Array(5)].map((_, i) => (
+            <Star
+              key={i}
+              className={cn(
+                'h-5 w-5',
+                i < rating ? 'text-primary fill-primary' : 'text-muted-foreground/50'
+              )}
+            />
+          ))}
+        </div>
+        <span className="font-bold text-lg">{rating}/5</span>
+      </div>
+      <Card className="bg-secondary/50 p-4">
+        <CardHeader className="p-0">
+          <CardTitle className="flex items-center gap-2 text-base font-headline">
+            <MessageSquareQuote className="h-5 w-5 text-accent" />
+            Chef's Notes
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="p-0 pt-2">
+          <p className="whitespace-pre-line text-sm text-foreground/90">
+            {chefNotes}
+          </p>
+        </CardContent>
+      </Card>
     </div>
   );
 }
@@ -279,6 +325,9 @@ ${recipe.ingredients.join('\n')}
 
 Instructions:
 ${recipe.instructions}
+
+Chef's Notes:
+${recipe.chefNotes}
     `;
     navigator.clipboard.writeText(recipeText.trim());
     toast({
@@ -362,6 +411,8 @@ ${recipe.instructions}
         </div>
         <Separator />
         <NutritionalInfoDisplay nutritionalInfo={recipe.nutritionalInfo} />
+        <Separator />
+        <ChefFeedback rating={recipe.rating} chefNotes={recipe.chefNotes} />
       </CardContent>
       <CardFooter className="flex flex-wrap gap-2">
         <Button onClick={handleSaveRecipe} disabled={isSaving}>

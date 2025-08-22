@@ -21,6 +21,8 @@ import {
   Beef,
   Wheat,
   Salad,
+  Star,
+  MessageSquareQuote,
 } from 'lucide-react';
 import {
   AlertDialog,
@@ -36,6 +38,7 @@ import {
 import { Badge } from './ui/badge';
 import { Separator } from './ui/separator';
 import { useToast } from '@/hooks/use-toast';
+import { cn } from '@/lib/utils';
 
 function RecipeInfoBadges({ recipe }: { recipe: GenerateRecipeOutput }) {
   return (
@@ -100,6 +103,51 @@ function NutritionalInfoDisplay({
   );
 }
 
+function ChefFeedback({
+  rating,
+  chefNotes,
+}: {
+  rating?: number;
+  chefNotes?: string;
+}) {
+  if (!rating || !chefNotes) return null;
+
+  return (
+    <div>
+      <h3 className="text-xl font-bold font-headline mt-4 mb-2">
+        Rating & Chef's Notes
+      </h3>
+      <div className="flex items-center gap-2 mb-4">
+        <div className="flex items-center">
+          {[...Array(5)].map((_, i) => (
+            <Star
+              key={i}
+              className={cn(
+                'h-5 w-5',
+                i < rating ? 'text-primary fill-primary' : 'text-muted-foreground/50'
+              )}
+            />
+          ))}
+        </div>
+        <span className="font-bold text-lg">{rating}/5</span>
+      </div>
+      <Card className="bg-secondary/50 p-4">
+        <CardHeader className="p-0">
+          <CardTitle className="flex items-center gap-2 text-base font-headline">
+            <MessageSquareQuote className="h-5 w-5 text-accent" />
+            Chef's Notes
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="p-0 pt-2">
+          <p className="whitespace-pre-line text-sm text-foreground/90">
+            {chefNotes}
+          </p>
+        </CardContent>
+      </Card>
+    </div>
+  );
+}
+
 export default function SavedRecipes() {
   const [savedRecipes, setSavedRecipes] = useState<GenerateRecipeOutput[]>([]);
   const [isClient, setIsClient] = useState(false);
@@ -141,6 +189,11 @@ Nutritional Info:
 - Fat: ${recipe.nutritionalInfo.fat}
 `
       : '';
+    
+    const chefNotesText = recipe.chefNotes ? `
+Chef's Notes:
+${recipe.chefNotes}
+    ` : '';
 
     const recipeText = `
 Recipe: ${recipe.recipeName}
@@ -154,6 +207,7 @@ ${recipe.ingredients.join('\n')}
 
 Instructions:
 ${recipe.instructions}
+${chefNotesText}
     `;
     navigator.clipboard.writeText(recipeText.trim());
     toast({
@@ -236,6 +290,8 @@ ${recipe.instructions}
             </div>
             {recipe.nutritionalInfo && <Separator />}
             <NutritionalInfoDisplay nutritionalInfo={recipe.nutritionalInfo} />
+            {(recipe.rating || recipe.chefNotes) && <Separator />}
+            <ChefFeedback rating={recipe.rating} chefNotes={recipe.chefNotes} />
           </CardContent>
           <CardFooter className="justify-between">
             <Button
