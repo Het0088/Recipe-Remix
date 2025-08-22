@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { ChefHat, Menu, X, Bookmark } from 'lucide-react';
+import { ChefHat, Menu, X, Bookmark, Wand2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { useState } from 'react';
@@ -15,6 +15,7 @@ import {
 
 const navItems = [
   { href: '/', label: 'Generate Recipe' },
+  { href: '/check-viability', label: 'Check Viability' },
   { href: '/saved-recipes', label: 'Saved Recipes' },
 ];
 
