@@ -30,9 +30,14 @@ export default function RootLayout({
         />
       </head>
       <body
-        className={cn('min-h-screen bg-background font-body antialiased')}
+        className={cn('min-h-screen font-body antialiased')}
+        style={{
+          backgroundImage: `url(https://www.transparenttextures.com/patterns/food.png)`,
+          backgroundSize: '300px 300px',
+          backgroundAttachment: 'fixed',
+        }}
       >
-        <div className="relative flex min-h-dvh flex-col">
+        <div className="relative flex min-h-dvh flex-col bg-background/95">
           <Header />
           <main className="flex-1 flex flex-col">
             <div className="flex-1 flex flex-col">{children}</div>
