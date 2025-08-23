@@ -15,7 +15,6 @@ import {
   BarChart,
   Globe,
   Copy,
-  Image as ImageIcon,
   Flame,
   Salad,
   Wheat,
@@ -314,8 +313,6 @@ function RecipeDisplay({
 }) {
   const { toast } = useToast();
   const [isSaving, setIsSaving] = useState(false);
-  const [isGeneratingImage, setIsGeneratingImage] = useState(false);
-  const [imageUrl, setImageUrl] = useState<string | null>(null);
   const { user } = useAuth();
   const router = useRouter();
 
@@ -388,23 +385,6 @@ ${recipe.instructions}
     });
   };
 
-  const handleGenerateImage = async () => {
-    setIsGeneratingImage(true);
-    const result = await generateRecipeImageAction({
-      recipeName: recipe.recipeName,
-    });
-    if (result.success) {
-      setImageUrl(result.data.imageUrl);
-    } else {
-      toast({
-        variant: 'destructive',
-        title: 'Image Generation Failed',
-        description: result.error,
-      });
-    }
-    setIsGeneratingImage(false);
-  };
-
   return (
     <Card
       className={`mt-8 shadow-lg animate-in fade-in-50 duration-500 ${
@@ -412,21 +392,10 @@ ${recipe.instructions}
       }`}
     >
       <CardHeader>
-        {isGeneratingImage && (
-          <div className="flex flex-col items-center justify-center bg-muted/50 rounded-lg p-8 my-4 text-center">
-            <Loader2 className="h-8 w-8 animate-spin text-primary mb-4" />
-            <p className="text-lg font-medium text-foreground">
-              Generating image...
-            </p>
-            <p className="text-sm text-muted-foreground">
-              This may take a moment.
-            </p>
-          </div>
-        )}
-        {imageUrl && (
+        {recipe.imageUrl && (
           <div className="mb-4 rounded-lg overflow-hidden shadow-inner">
             <Image
-              src={imageUrl}
+              src={recipe.imageUrl}
               alt={`An image of ${recipe.recipeName}`}
               width={600}
               height={400}
@@ -470,22 +439,6 @@ ${recipe.instructions}
           <Bookmark className="mr-2 h-4 w-4" />
           {isSaving ? 'Saving...' : 'Save Recipe'}
         </Button>
-        <Button
-          onClick={handleGenerateImage}
-          disabled={isGeneratingImage || !!imageUrl}
-          variant="secondary"
-        >
-          {isGeneratingImage ? (
-            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-          ) : (
-            <ImageIcon className="mr-2 h-4 w-4" />
-          )}
-          {imageUrl
-            ? 'Image Generated'
-            : isGeneratingImage
-            ? 'Generating...'
-            : 'Generate Image'}
-        </Button>
         <Button variant="outline" onClick={handleCopyRecipe}>
           <Copy className="mr-2 h-4 w-4" />
           Copy Recipe
@@ -500,7 +453,8 @@ function LoadingSkeleton() {
   return (
     <Card className="mt-8 shadow-lg">
       <CardHeader>
-        <Skeleton className="h-8 w-3/4 rounded-md" />
+        <Skeleton className="h-64 w-full rounded-md" />
+        <Skeleton className="h-8 w-3/4 rounded-md mt-4" />
         <Skeleton className="h-4 w-1/2 rounded-md mt-2" />
       </CardHeader>
       <CardContent className="space-y-6">

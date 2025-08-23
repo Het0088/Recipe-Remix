@@ -27,7 +27,7 @@ export async function generateRecipe(input: GenerateRecipeInput): Promise<Genera
 const prompt = ai.definePrompt({
   name: 'generateRecipePrompt',
   input: {schema: GenerateRecipeInputSchema},
-  output: {schema: GenerateRecipeOutputSchema},
+  output: {schema: GenerateRecipeOutputSchema.omit({imageUrl: true})},
   prompt: `You are a chef specializing in creating unique recipes.
 
   Create a recipe based on the following ingredients: {{{ingredients}}}.
@@ -45,7 +45,27 @@ const generateRecipeFlow = ai.defineFlow(
     outputSchema: GenerateRecipeOutputSchema,
   },
   async input => {
-    const {output} = await prompt(input);
-    return output!;
+    const [{output: recipeOutput}, {media}] = await Promise.all([
+      prompt(input),
+      ai.generate({
+        model: 'googleai/gemini-2.0-flash-preview-image-generation',
+        prompt: `A delicious-looking, professionally photographed image of a recipe made with the following ingredients: ${input.ingredients.join(', ')}, with a clean, bright background.`,
+        config: {
+          responseModalities: ['TEXT', 'IMAGE'],
+        },
+      }),
+    ]);
+    
+    if (!recipeOutput) {
+      throw new Error('Recipe generation failed.');
+    }
+    if (!media.url) {
+      throw new Error('Image generation failed.');
+    }
+
+    return {
+      ...recipeOutput,
+      imageUrl: media.url,
+    };
   }
 );
