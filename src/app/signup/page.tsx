@@ -106,6 +106,9 @@ export default function SignupPage() {
     } else if (error.code === 'auth/email-already-in-use') {
       description =
         'This email is already in use. Please log in or use a different email.';
+    } else if (error.code === 'auth/unauthorized-domain') {
+      description =
+        "This app's domain is not authorized for OAuth operations. Please add it to the list of authorized domains in the Firebase console.";
     }
     toast({
       variant: 'destructive',

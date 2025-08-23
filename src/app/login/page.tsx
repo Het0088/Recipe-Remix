@@ -102,6 +102,8 @@ export default function LoginPage() {
         description = 'Authentication is not enabled for this project. Please enable Email/Password and Google sign-in in the Firebase console.';
       } else if (error.code === 'auth/invalid-credential') {
         description = 'Invalid email or password. Please try again.';
+      } else if (error.code === 'auth/unauthorized-domain') {
+        description = "This app's domain is not authorized for OAuth operations. Please add it to the list of authorized domains in the Firebase console.";
       }
       toast({
         variant: 'destructive',
