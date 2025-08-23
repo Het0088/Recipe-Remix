@@ -24,6 +24,14 @@ import {
   Star,
   MessageSquareQuote,
 } from 'lucide-react';
+import {
+  addDoc,
+  collection,
+  doc,
+  getDocs,
+  query,
+  where,
+} from 'firebase/firestore';
 
 import { Button } from '@/components/ui/button';
 import {
@@ -67,6 +75,9 @@ import {
 import { cn } from '@/lib/utils';
 import { Textarea } from './ui/textarea';
 import { Label } from './ui/label';
+import { useAuth } from '@/hooks/use-auth';
+import { db } from '@/lib/firebase';
+import { useRouter } from 'next/navigation';
 
 function RecipeInfoBadges({ recipe }: { recipe: GenerateRecipeOutput }) {
   return (
@@ -216,20 +227,20 @@ function RecipeVariations({
   const onSubmit = async (values: RecipeVariationValues) => {
     setIsLoading(true);
     setVariationRecipe(null);
-    // const result = await generateRecipeVariationAction({
-    //   recipe: originalRecipe,
-    //   variation: values.variation,
-    // });
+    const result = await generateRecipeVariationAction({
+      recipe: originalRecipe,
+      variation: values.variation,
+    });
 
-    // if (result.success) {
-    //   setVariationRecipe(result.data);
-    // } else {
-    //   toast({
-    //     variant: 'destructive',
-    //     title: 'Error',
-    //     description: result.error,
-    //   });
-    // }
+    if (result.success) {
+      setVariationRecipe(result.data);
+    } else {
+      toast({
+        variant: 'destructive',
+        title: 'Error',
+        description: result.error,
+      });
+    }
     setIsLoading(false);
   };
 
@@ -305,34 +316,46 @@ function RecipeDisplay({
   const [isSaving, setIsSaving] = useState(false);
   const [isGeneratingImage, setIsGeneratingImage] = useState(false);
   const [imageUrl, setImageUrl] = useState<string | null>(null);
+  const { user } = useAuth();
+  const router = useRouter();
 
-  const handleSaveRecipe = () => {
+  const handleSaveRecipe = async () => {
+    if (!user) {
+      toast({
+        variant: 'destructive',
+        title: 'Not Logged In',
+        description: 'You must be logged in to save a recipe.',
+      });
+      router.push('/login');
+      return;
+    }
     setIsSaving(true);
     try {
-      const savedRecipes: GenerateRecipeOutput[] = JSON.parse(
-        localStorage.getItem('savedRecipes') || '[]'
-      );
-      if (!savedRecipes.some((r) => r.recipeName === recipe.recipeName)) {
-        savedRecipes.push(recipe);
-        localStorage.setItem('savedRecipes', JSON.stringify(savedRecipes));
-        toast({
-          title: 'Recipe Saved!',
-          description: `'${recipe.recipeName}' has been added to your saved recipes.`,
-        });
-      } else {
+      const recipesRef = collection(db, 'users', user.uid, 'recipes');
+      const q = query(recipesRef, where('recipeName', '==', recipe.recipeName));
+      const existing = await getDocs(q);
+
+      if (!existing.empty) {
         toast({
           variant: 'destructive',
           title: 'Already Saved',
           description: 'This recipe is already in your saved list.',
         });
+        return;
       }
+
+      await addDoc(recipesRef, recipe);
+      toast({
+        title: 'Recipe Saved!',
+        description: `'${recipe.recipeName}' has been added to your saved recipes.`,
+      });
     } catch (error) {
       toast({
         variant: 'destructive',
         title: 'Error',
         description: 'Could not save recipe. Please try again.',
       });
-      console.error('Failed to save recipe to local storage:', error);
+      console.error('Failed to save recipe to Firestore:', error);
     } finally {
       setIsSaving(false);
     }
@@ -367,18 +390,18 @@ ${recipe.instructions}
 
   const handleGenerateImage = async () => {
     setIsGeneratingImage(true);
-    // const result = await generateRecipeImageAction({
-    //   recipeName: recipe.recipeName,
-    // });
-    // if (result.success) {
-    //   setImageUrl(result.data.imageUrl);
-    // } else {
-    //   toast({
-    //     variant: 'destructive',
-    //     title: 'Image Generation Failed',
-    //     description: result.error,
-    //   });
-    // }
+    const result = await generateRecipeImageAction({
+      recipeName: recipe.recipeName,
+    });
+    if (result.success) {
+      setImageUrl(result.data.imageUrl);
+    } else {
+      toast({
+        variant: 'destructive',
+        title: 'Image Generation Failed',
+        description: result.error,
+      });
+    }
     setIsGeneratingImage(false);
   };
 
@@ -541,17 +564,17 @@ export default function RecipeGeneration() {
     setIsLoading(true);
     setGeneratedRecipe(null);
     const ingredients = values.ingredients.map((i) => i.value);
-    // const result = await generateRecipeAction({ ingredients });
+    const result = await generateRecipeAction({ ingredients });
 
-    // if (result.success) {
-    //   setGeneratedRecipe(result.data);
-    // } else {
-    //   toast({
-    //     variant: 'destructive',
-    //     title: 'Error',
-    //     description: result.error,
-    //   });
-    // }
+    if (result.success) {
+      setGeneratedRecipe(result.data);
+    } else {
+      toast({
+        variant: 'destructive',
+        title: 'Error',
+        description: result.error,
+      });
+    }
     setIsLoading(false);
   };
 

@@ -3,6 +3,7 @@ import './globals.css';
 import { cn } from '@/lib/utils';
 import { Toaster } from '@/components/ui/toaster';
 import Header from '@/components/layout/header';
+import { AuthProvider } from '@/hooks/use-auth';
 
 export const metadata: Metadata = {
   title: 'Recipe Remix',
@@ -37,13 +38,15 @@ export default function RootLayout({
           backgroundAttachment: 'fixed',
         }}
       >
-        <div className="relative flex min-h-dvh flex-col bg-background/95">
-          <Header />
-          <main className="flex-1 flex flex-col">
-            <div className="flex-1 flex flex-col">{children}</div>
-          </main>
-        </div>
-        <Toaster />
+        <AuthProvider>
+          <div className="relative flex min-h-dvh flex-col bg-background/95">
+            <Header />
+            <main className="flex-1 flex flex-col">
+              <div className="flex-1 flex flex-col">{children}</div>
+            </main>
+          </div>
+          <Toaster />
+        </AuthProvider>
       </body>
     </html>
   );

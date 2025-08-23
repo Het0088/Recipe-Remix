@@ -1,6 +1,29 @@
+'use client';
+
+import { useEffect } from 'react';
+import { useRouter } from 'next/navigation';
+import { useAuth } from '@/hooks/use-auth';
 import SavedRecipes from '@/components/saved-recipes';
+import { Loader2 } from 'lucide-react';
 
 export default function SavedRecipesPage() {
+  const { user, loading } = useAuth();
+  const router = useRouter();
+
+  useEffect(() => {
+    if (!loading && !user) {
+      router.push('/login?redirect=/saved-recipes');
+    }
+  }, [user, loading, router]);
+
+  if (loading || !user) {
+    return (
+       <div className="flex-1 flex items-center justify-center">
+         <Loader2 className="h-8 w-8 animate-spin" />
+       </div>
+    );
+  }
+
   return (
     <div className="flex-1">
       <div className="bg-background min-h-full">

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import type { GenerateRecipeOutput } from '@/ai/flows/generate-recipe';
 import {
   Card,
@@ -23,6 +23,7 @@ import {
   Salad,
   Star,
   MessageSquareQuote,
+  Loader2,
 } from 'lucide-react';
 import {
   AlertDialog,
@@ -38,7 +39,19 @@ import {
 import { Badge } from './ui/badge';
 import { Separator } from './ui/separator';
 import { useToast } from '@/hooks/use-toast';
-import { cn } from '@/lib/utils';
+import { useAuth } from '@/hooks/use-auth';
+import { db } from '@/lib/firebase';
+import {
+  collection,
+  getDocs,
+  deleteDoc,
+  doc,
+  query,
+} from 'firebase/firestore';
+
+interface SavedRecipe extends GenerateRecipeOutput {
+  id: string;
+}
 
 function RecipeInfoBadges({ recipe }: { recipe: GenerateRecipeOutput }) {
   return (
@@ -104,34 +117,78 @@ function NutritionalInfoDisplay({
 }
 
 export default function SavedRecipes() {
-  const [savedRecipes, setSavedRecipes] = useState<GenerateRecipeOutput[]>([]);
-  const [isClient, setIsClient] = useState(false);
+  const [savedRecipes, setSavedRecipes] = useState<SavedRecipe[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const { user } = useAuth();
   const { toast } = useToast();
 
-  useEffect(() => {
-    setIsClient(true);
-    // try {
-    //   const recipesFromStorage = JSON.parse(
-    //     localStorage.getItem('savedRecipes') || '[]'
-    //   );
-    //   setSavedRecipes(recipesFromStorage);
-    // } catch (error) {
-    //   console.error('Failed to load recipes from local storage:', error);
-    //   setSavedRecipes([]);
-    // }
-  }, []);
+  const fetchRecipes = useCallback(async () => {
+    if (!user) return;
+    setIsLoading(true);
+    try {
+      const recipesRef = collection(db, 'users', user.uid, 'recipes');
+      const querySnapshot = await getDocs(recipesRef);
+      const recipes = querySnapshot.docs.map(
+        (doc) => ({ id: doc.id, ...doc.data() } as SavedRecipe)
+      );
+      setSavedRecipes(recipes);
+    } catch (error) {
+      console.error('Error fetching recipes:', error);
+      toast({
+        variant: 'destructive',
+        title: 'Error',
+        description: 'Could not fetch saved recipes.',
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  }, [user, toast]);
 
-  const handleRemoveRecipe = (recipeName: string) => {
-    const updatedRecipes = savedRecipes.filter(
-      (r) => r.recipeName !== recipeName
-    );
-    setSavedRecipes(updatedRecipes);
-    localStorage.setItem('savedRecipes', JSON.stringify(updatedRecipes));
+  useEffect(() => {
+    fetchRecipes();
+  }, [fetchRecipes]);
+
+  const handleRemoveRecipe = async (recipeId: string) => {
+    if (!user) return;
+    try {
+      await deleteDoc(doc(db, 'users', user.uid, 'recipes', recipeId));
+      setSavedRecipes(savedRecipes.filter((r) => r.id !== recipeId));
+      toast({
+        title: 'Recipe Removed',
+        description: 'The recipe has been removed from your saved list.',
+      });
+    } catch (error) {
+      console.error('Error removing recipe:', error);
+      toast({
+        variant: 'destructive',
+        title: 'Error',
+        description: 'Could not remove recipe.',
+      });
+    }
   };
 
-  const handleClearAll = () => {
-    setSavedRecipes([]);
-    localStorage.removeItem('savedRecipes');
+  const handleClearAll = async () => {
+    if (!user) return;
+    try {
+      const recipesRef = collection(db, 'users', user.uid, 'recipes');
+      const querySnapshot = await getDocs(recipesRef);
+      const deletePromises = querySnapshot.docs.map((doc) =>
+        deleteDoc(doc.ref)
+      );
+      await Promise.all(deletePromises);
+      setSavedRecipes([]);
+      toast({
+        title: 'All Recipes Cleared',
+        description: 'All your saved recipes have been deleted.',
+      });
+    } catch (error) {
+      console.error('Error clearing recipes:', error);
+      toast({
+        variant: 'destructive',
+        title: 'Error',
+        description: 'Could not clear all recipes.',
+      });
+    }
   };
 
   const handleCopyRecipe = (recipe: GenerateRecipeOutput) => {
@@ -144,7 +201,7 @@ Nutritional Info:
 - Fat: ${recipe.nutritionalInfo.fat}
 `
       : '';
-    
+
     const recipeText = `
 Recipe: ${recipe.recipeName}
 
@@ -165,9 +222,12 @@ ${recipe.instructions}
     });
   };
 
-  if (!isClient) {
-    // Render a loading state or nothing on the server
-    return null;
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center py-16">
+        <Loader2 className="h-8 w-8 animate-spin" />
+      </div>
+    );
   }
 
   if (savedRecipes.length === 0) {
@@ -209,8 +269,8 @@ ${recipe.instructions}
           </AlertDialogContent>
         </AlertDialog>
       </div>
-      {savedRecipes.map((recipe, index) => (
-        <Card key={index} className="shadow-lg">
+      {savedRecipes.map((recipe) => (
+        <Card key={recipe.id} className="shadow-lg">
           <CardHeader>
             <CardTitle className="text-3xl font-headline text-accent">
               {recipe.recipeName}
@@ -244,7 +304,7 @@ ${recipe.instructions}
             <Button
               variant="outline"
               size="sm"
-              onClick={() => handleRemoveRecipe(recipe.recipeName)}
+              onClick={() => handleRemoveRecipe(recipe.id)}
             >
               <Trash2 className="mr-2 h-4 w-4" />
               Remove
