@@ -216,20 +216,20 @@ function RecipeVariations({
   const onSubmit = async (values: RecipeVariationValues) => {
     setIsLoading(true);
     setVariationRecipe(null);
-    const result = await generateRecipeVariationAction({
-      recipe: originalRecipe,
-      variation: values.variation,
-    });
+    // const result = await generateRecipeVariationAction({
+    //   recipe: originalRecipe,
+    //   variation: values.variation,
+    // });
 
-    if (result.success) {
-      setVariationRecipe(result.data);
-    } else {
-      toast({
-        variant: 'destructive',
-        title: 'Error',
-        description: result.error,
-      });
-    }
+    // if (result.success) {
+    //   setVariationRecipe(result.data);
+    // } else {
+    //   toast({
+    //     variant: 'destructive',
+    //     title: 'Error',
+    //     description: result.error,
+    //   });
+    // }
     setIsLoading(false);
   };
 
@@ -367,18 +367,18 @@ ${recipe.instructions}
 
   const handleGenerateImage = async () => {
     setIsGeneratingImage(true);
-    const result = await generateRecipeImageAction({
-      recipeName: recipe.recipeName,
-    });
-    if (result.success) {
-      setImageUrl(result.data.imageUrl);
-    } else {
-      toast({
-        variant: 'destructive',
-        title: 'Image Generation Failed',
-        description: result.error,
-      });
-    }
+    // const result = await generateRecipeImageAction({
+    //   recipeName: recipe.recipeName,
+    // });
+    // if (result.success) {
+    //   setImageUrl(result.data.imageUrl);
+    // } else {
+    //   toast({
+    //     variant: 'destructive',
+    //     title: 'Image Generation Failed',
+    //     description: result.error,
+    //   });
+    // }
     setIsGeneratingImage(false);
   };
 
@@ -541,17 +541,17 @@ export default function RecipeGeneration() {
     setIsLoading(true);
     setGeneratedRecipe(null);
     const ingredients = values.ingredients.map((i) => i.value);
-    const result = await generateRecipeAction({ ingredients });
+    // const result = await generateRecipeAction({ ingredients });
 
-    if (result.success) {
-      setGeneratedRecipe(result.data);
-    } else {
-      toast({
-        variant: 'destructive',
-        title: 'Error',
-        description: result.error,
-      });
-    }
+    // if (result.success) {
+    //   setGeneratedRecipe(result.data);
+    // } else {
+    //   toast({
+    //     variant: 'destructive',
+    //     title: 'Error',
+    //     description: result.error,
+    //   });
+    // }
     setIsLoading(false);
   };
 

@@ -110,15 +110,15 @@ export default function SavedRecipes() {
 
   useEffect(() => {
     setIsClient(true);
-    try {
-      const recipesFromStorage = JSON.parse(
-        localStorage.getItem('savedRecipes') || '[]'
-      );
-      setSavedRecipes(recipesFromStorage);
-    } catch (error) {
-      console.error('Failed to load recipes from local storage:', error);
-      setSavedRecipes([]);
-    }
+    // try {
+    //   const recipesFromStorage = JSON.parse(
+    //     localStorage.getItem('savedRecipes') || '[]'
+    //   );
+    //   setSavedRecipes(recipesFromStorage);
+    // } catch (error) {
+    //   console.error('Failed to load recipes from local storage:', error);
+    //   setSavedRecipes([]);
+    // }
   }, []);
 
   const handleRemoveRecipe = (recipeName: string) => {

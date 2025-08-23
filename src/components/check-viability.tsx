@@ -107,17 +107,17 @@ export default function CheckViability() {
   const onSubmit = async (values: RecipeViabilityValues) => {
     setIsLoading(true);
     setViabilityResult(null);
-    const result = await checkRecipeViabilityAction(values);
+    // const result = await checkRecipeViabilityAction(values);
 
-    if (result.success) {
-      setViabilityResult(result.data);
-    } else {
-      toast({
-        variant: 'destructive',
-        title: 'Error',
-        description: result.error,
-      });
-    }
+    // if (result.success) {
+    //   setViabilityResult(result.data);
+    // } else {
+    //   toast({
+    //     variant: 'destructive',
+    //     title: 'Error',
+    //     description: result.error,
+    //   });
+    // }
     setIsLoading(false);
   };
 
