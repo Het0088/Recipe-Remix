@@ -60,10 +60,14 @@ export default function SignupPage() {
       });
       router.push('/');
     } catch (error: any) {
+      let description = error.message;
+      if (error.code === 'auth/configuration-not-found') {
+        description = 'Authentication is not enabled for this project. Please enable Email/Password sign-in in the Firebase console.';
+      }
       toast({
         variant: 'destructive',
         title: 'Sign Up Failed',
-        description: error.message,
+        description: description,
       });
     } finally {
       setIsLoading(false);
