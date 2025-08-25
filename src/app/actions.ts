@@ -6,14 +6,22 @@ import { generateRecipeImage } from '@/ai/flows/generate-recipe-image';
 import { generateRecipeVariation } from '@/ai/flows/generate-recipe-variation';
 import type { RecipeViabilityValues } from '@/lib/schemas';
 import type { GenerateRecipeOutput } from '@/ai/flows/generate-recipe';
+import { generateRecipeOfTheDay } from '@/ai/flows/generate-recipe-of-the-day';
+import { unstable_cache as cache } from 'next/cache';
 
-export async function generateRecipeAction(data: { ingredients: string[], customization?: string }) {
+export async function generateRecipeAction(data: {
+  ingredients: string[];
+  customization?: string;
+}) {
   try {
     const result = await generateRecipe(data);
     return { success: true, data: result };
   } catch (error) {
     console.error(error);
-    return { success: false, error: 'Failed to generate recipe. Please try again.' };
+    return {
+      success: false,
+      error: 'Failed to generate recipe. Please try again.',
+    };
   }
 }
 
@@ -23,7 +31,10 @@ export async function checkRecipeViabilityAction(data: RecipeViabilityValues) {
     return { success: true, data: result };
   } catch (error) {
     console.error(error);
-    return { success: false, error: 'Failed to check recipe viability. Please try again.' };
+    return {
+      success: false,
+      error: 'Failed to check recipe viability. Please try again.',
+    };
   }
 }
 
@@ -46,6 +57,27 @@ export async function generateRecipeVariationAction(data: {
     return { success: true, data: result };
   } catch (error) {
     console.error(error);
-    return { success: false, error: 'Failed to generate variation. Please try again.' };
+    return {
+      success: false,
+      error: 'Failed to generate variation. Please try again.',
+    };
   }
 }
+
+export const getRecipeOfTheDay = cache(
+  async () => {
+    try {
+      console.log("Generating new recipe of the day...");
+      const recipe = await generateRecipeOfTheDay();
+      return { success: true, data: recipe };
+    } catch (error) {
+      console.error(error);
+      return { success: false, error: 'Failed to fetch recipe of the day.' };
+    }
+  },
+  ['recipe_of_the_day'], // Cache key
+  {
+    revalidate: 86400, // Revalidate every 24 hours (in seconds)
+    tags: ['recipe-of-the-day'],
+  }
+);

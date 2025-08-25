@@ -1,9 +1,11 @@
 import RecipeGeneration from '@/components/recipe-generation';
+import RecipeOfTheDay from '@/components/recipe-of-the-day';
 
 export default function Home() {
   return (
     <div className="container mx-auto max-w-4xl py-12 px-4">
-      <div className="text-center mb-12">
+      <RecipeOfTheDay />
+      <div className="text-center my-12">
         <h1 className="text-4xl md:text-5xl font-bold font-headline tracking-tight text-primary">
           Unleash Your Inner Chef
         </h1>
