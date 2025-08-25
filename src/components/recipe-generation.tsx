@@ -22,8 +22,6 @@ import {
   CookingPot,
   Star,
   MessageSquareQuote,
-  ShoppingCart,
-  Printer,
 } from 'lucide-react';
 import {
   addDoc,
@@ -79,15 +77,6 @@ import { Label } from './ui/label';
 import { useAuth } from '@/hooks/use-auth';
 import { db } from '@/lib/firebase';
 import { useRouter } from 'next/navigation';
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from './ui/dialog';
-import { Checkbox } from './ui/checkbox';
 
 function RecipeInfoBadges({ recipe }: { recipe: GenerateRecipeOutput }) {
   return (
@@ -315,66 +304,6 @@ function RecipeVariations({
   );
 }
 
-function ShoppingListDialog({ recipe }: { recipe: GenerateRecipeOutput }) {
-  const printList = () => {
-    window.print();
-  };
-
-  return (
-    <DialogContent className="max-w-md">
-      <DialogHeader>
-        <DialogTitle className="flex items-center gap-2">
-          <ShoppingCart /> Shopping List for {recipe.recipeName}
-        </DialogTitle>
-        <DialogDescription>
-          Check off the items you already have.
-        </DialogDescription>
-      </DialogHeader>
-      <div
-        className="space-y-2 py-4 max-h-64 overflow-y-auto"
-        id="shopping-list"
-      >
-        {recipe.ingredients.map((ingredient, index) => (
-          <div key={index} className="flex items-center gap-3">
-            <Checkbox id={`ingredient-${index}`} />
-            <label
-              htmlFor={`ingredient-${index}`}
-              className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-            >
-              {ingredient}
-            </label>
-          </div>
-        ))}
-      </div>
-      <style>{`
-        @media print {
-          body * {
-            visibility: hidden;
-          }
-          #shopping-list-dialog, #shopping-list-dialog * {
-            visibility: visible;
-          }
-          #shopping-list-dialog {
-            position: absolute;
-            left: 0;
-            top: 0;
-            width: 100%;
-          }
-          #shopping-list-print-button {
-            display: none;
-          }
-        }
-      `}</style>
-      <div className="flex justify-end">
-        <Button onClick={printList} id="shopping-list-print-button">
-          <Printer className="mr-2 h-4 w-4" />
-          Print List
-        </Button>
-      </div>
-    </DialogContent>
-  );
-}
-
 function RecipeDisplay({
   recipe,
   isVariation = false,
@@ -514,15 +443,6 @@ ${recipe.instructions}
           <Copy className="mr-2 h-4 w-4" />
           Copy Recipe
         </Button>
-        <Dialog>
-          <DialogTrigger asChild>
-            <Button variant="outline">
-              <ShoppingCart className="mr-2 h-4 w-4" />
-              Shopping List
-            </Button>
-          </DialogTrigger>
-          <ShoppingListDialog recipe={recipe} />
-        </Dialog>
       </CardFooter>
       {!isVariation && <RecipeVariations originalRecipe={recipe} />}
     </Card>
