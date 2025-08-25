@@ -1,16 +1,8 @@
 import RecipeGeneration from '@/components/recipe-generation';
-import RecipeOfTheDay from '@/components/recipe-of-the-day';
-import { getRecipeOfTheDay } from '@/app/actions';
 
-export default async function Home() {
-  const recipeOfTheDayResult = await getRecipeOfTheDay();
-
+export default function Home() {
   return (
     <div className="container mx-auto max-w-4xl py-12 px-4 space-y-12">
-      <RecipeOfTheDay
-        initialRecipe={recipeOfTheDayResult.success ? recipeOfTheDayResult.data : null}
-        error={recipeOfTheDayResult.success ? null : recipeOfTheDayResult.error}
-      />
       <div className="text-center">
         <h1 className="text-4xl md:text-5xl font-bold font-headline tracking-tight text-primary">
           Unleash Your Inner Chef
