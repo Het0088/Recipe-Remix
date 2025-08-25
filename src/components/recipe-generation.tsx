@@ -506,6 +506,7 @@ export default function RecipeGeneration() {
     resolver: zodResolver(recipeGenerationSchema),
     defaultValues: {
       ingredients: [{ value: '' }],
+      customization: '',
     },
   });
 
@@ -518,7 +519,7 @@ export default function RecipeGeneration() {
     setIsLoading(true);
     setGeneratedRecipe(null);
     const ingredients = values.ingredients.map((i) => i.value);
-    const result = await generateRecipeAction({ ingredients });
+    const result = await generateRecipeAction({ ingredients, customization: values.customization });
 
     if (result.success) {
       setGeneratedRecipe(result.data);
@@ -538,10 +539,10 @@ export default function RecipeGeneration() {
         <CardHeader>
           <CardTitle className="flex items-center gap-2 font-headline">
             <UtensilsCrossed className="text-primary" />
-            Your Ingredients
+            Your Kitchen
           </CardTitle>
           <CardDescription>
-            List the ingredients you have on hand. Add as many as you like!
+            List your ingredients and any special requests below.
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -555,13 +556,13 @@ export default function RecipeGeneration() {
                     name={`ingredients.${index}.value`}
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel className="sr-only">
-                          Ingredient {index + 1}
+                        <FormLabel className={cn(index !== 0 && 'sr-only')}>
+                          Ingredients
                         </FormLabel>
                         <div className="flex items-center gap-2">
                           <FormControl>
                             <Input
-                              placeholder={'e.g., Tofu, tomatoes, ...'}
+                              placeholder={index === 0 ? 'e.g., Tofu, tomatoes, ...' : 'Add another ingredient...'}
                               {...field}
                             />
                           </FormControl>
@@ -582,17 +583,35 @@ export default function RecipeGeneration() {
                     )}
                   />
                 ))}
-              </div>
-
-              <div className="flex flex-col sm:flex-row gap-2">
-                <Button
+                 <Button
                   type="button"
                   variant="outline"
+                  size="sm"
                   onClick={() => append({ value: '' })}
                 >
                   <Plus className="mr-2 h-4 w-4" />
                   Add Ingredient
                 </Button>
+              </div>
+
+              <FormField
+                control={form.control}
+                name="customization"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Dietary Needs or Special Requests (Optional)</FormLabel>
+                    <FormControl>
+                      <Input
+                        placeholder="e.g., Vegan, gluten-free, low-carb, for kids..."
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <div className="flex justify-end">
                 <Button
                   type="submit"
                   disabled={isLoading}

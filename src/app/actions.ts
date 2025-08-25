@@ -7,9 +7,9 @@ import { generateRecipeVariation } from '@/ai/flows/generate-recipe-variation';
 import type { RecipeViabilityValues } from '@/lib/schemas';
 import type { GenerateRecipeOutput } from '@/ai/flows/generate-recipe';
 
-export async function generateRecipeAction(data: { ingredients: string[] }) {
+export async function generateRecipeAction(data: { ingredients: string[], customization?: string }) {
   try {
-    const result = await generateRecipe({ ingredients: data.ingredients });
+    const result = await generateRecipe(data);
     return { success: true, data: result };
   } catch (error) {
     console.error(error);

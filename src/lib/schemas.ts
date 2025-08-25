@@ -8,6 +8,7 @@ export const recipeGenerationSchema = z.object({
       })
     )
     .min(1, { message: 'Please add at least one ingredient.' }),
+  customization: z.string().optional(),
 });
 
 export const recipeViabilitySchema = z.object({

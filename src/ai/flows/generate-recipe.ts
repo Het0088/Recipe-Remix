@@ -16,6 +16,7 @@ import { GenerateRecipeOutputSchema } from '@/ai/schemas';
 
 const GenerateRecipeInputSchema = z.object({
   ingredients: z.array(z.string()).describe('A list of ingredients available to use in the recipe.'),
+  customization: z.string().optional().describe('An optional user request for customizing the recipe, e.g., "make it vegan", "gluten-free", "low-carb".'),
 });
 export type GenerateRecipeInput = z.infer<typeof GenerateRecipeInputSchema>;
 export type GenerateRecipeOutput = z.infer<typeof GenerateRecipeOutputSchema>;
@@ -31,6 +32,9 @@ const prompt = ai.definePrompt({
   prompt: `You are a chef specializing in creating unique recipes.
 
   Create a recipe based on the following ingredients: {{{ingredients}}}.
+  {{#if customization}}
+  The user has requested the following customization: "{{{customization}}}". You must adhere to this request.
+  {{/if}}
   The recipe should include a name, a list of ingredients, and detailed instructions.
   Also include the difficulty level (Easy, Medium, or Hard), the estimated cooking time, and the cuisine type.
   Provide an estimated nutritional information breakdown per serving, including calories, protein, carbs, and fat.
