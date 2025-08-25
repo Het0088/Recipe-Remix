@@ -1,20 +1,23 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useTransition } from 'react';
 import Image from 'next/image';
-import { getRecipeOfTheDay } from '@/app/actions';
+import { getRecipeOfTheDay, resetRecipeOfTheDay } from '@/app/actions';
 import type { GenerateRecipeOutput } from '@/ai/flows/generate-recipe';
 import {
   Card,
   CardContent,
   CardDescription,
+  CardFooter,
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
 import { Skeleton } from './ui/skeleton';
 import { Badge } from './ui/badge';
-import { Clock, BarChart, Globe, Utensils, AlertTriangle } from 'lucide-react';
+import { Clock, BarChart, Globe, Utensils, AlertTriangle, RefreshCw } from 'lucide-react';
 import { Separator } from './ui/separator';
+import { Button } from './ui/button';
+import { useRouter } from 'next/navigation';
 
 function RecipeInfoBadges({ recipe }: { recipe: GenerateRecipeOutput }) {
   return (
@@ -84,6 +87,8 @@ export default function RecipeOfTheDay() {
   const [recipe, setRecipe] = useState<GenerateRecipeOutput | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [isPending, startTransition] = useTransition();
+  const router = useRouter();
 
   useEffect(() => {
     const fetchRecipe = async () => {
@@ -100,6 +105,13 @@ export default function RecipeOfTheDay() {
 
     fetchRecipe();
   }, []);
+  
+  const handleReset = () => {
+    startTransition(async () => {
+      await resetRecipeOfTheDay();
+      router.refresh();
+    });
+  };
 
   if (isLoading) {
     return <LoadingSkeleton />;
@@ -160,6 +172,12 @@ export default function RecipeOfTheDay() {
           </div>
         </div>
       </CardContent>
+       <CardFooter className="justify-center">
+         <Button onClick={handleReset} disabled={isPending}>
+           <RefreshCw className={`mr-2 h-4 w-4 ${isPending ? 'animate-spin' : ''}`} />
+           {isPending ? 'Generating New Recipe...' : 'Get New Recipe'}
+         </Button>
+       </CardFooter>
     </Card>
   );
 }

@@ -7,7 +7,7 @@ import { generateRecipeVariation } from '@/ai/flows/generate-recipe-variation';
 import type { RecipeViabilityValues } from '@/lib/schemas';
 import type { GenerateRecipeOutput } from '@/ai/flows/generate-recipe';
 import { generateRecipeOfTheDay } from '@/ai/flows/generate-recipe-of-the-day';
-import { unstable_cache as cache } from 'next/cache';
+import { unstable_cache as cache, revalidateTag } from 'next/cache';
 
 export async function generateRecipeAction(data: {
   ingredients: string[];
@@ -81,3 +81,7 @@ export const getRecipeOfTheDay = cache(
     tags: ['recipe-of-the-day'],
   }
 );
+
+export async function resetRecipeOfTheDay() {
+  revalidateTag('recipe-of-the-day');
+}
