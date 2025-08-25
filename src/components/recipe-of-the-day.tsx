@@ -1,8 +1,9 @@
+
 'use client';
 
-import { useEffect, useState, useTransition } from 'react';
+import { useState, useTransition } from 'react';
 import Image from 'next/image';
-import { getRecipeOfTheDay, resetRecipeOfTheDay } from '@/app/actions';
+import { resetRecipeOfTheDay } from '@/app/actions';
 import type { GenerateRecipeOutput } from '@/ai/flows/generate-recipe';
 import {
   Card,
@@ -14,7 +15,14 @@ import {
 } from '@/components/ui/card';
 import { Skeleton } from './ui/skeleton';
 import { Badge } from './ui/badge';
-import { Clock, BarChart, Globe, Utensils, AlertTriangle, RefreshCw } from 'lucide-react';
+import {
+  Clock,
+  BarChart,
+  Globe,
+  Utensils,
+  AlertTriangle,
+  RefreshCw,
+} from 'lucide-react';
 import { Separator } from './ui/separator';
 import { Button } from './ui/button';
 import { useRouter } from 'next/navigation';
@@ -83,29 +91,20 @@ function ErrorDisplay({ error }: { error: string }) {
   );
 }
 
-export default function RecipeOfTheDay() {
-  const [recipe, setRecipe] = useState<GenerateRecipeOutput | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+type RecipeOfTheDayProps = {
+  initialRecipe: GenerateRecipeOutput | null;
+  error: string | null;
+};
+
+export default function RecipeOfTheDay({
+  initialRecipe,
+  error: initialError,
+}: RecipeOfTheDayProps) {
+  const [recipe] = useState<GenerateRecipeOutput | null>(initialRecipe);
+  const [error] = useState<string | null>(initialError);
   const [isPending, startTransition] = useTransition();
   const router = useRouter();
 
-  useEffect(() => {
-    const fetchRecipe = async () => {
-      setIsLoading(true);
-      setError(null);
-      const result = await getRecipeOfTheDay();
-      if (result.success) {
-        setRecipe(result.data);
-      } else {
-        setError(result.error ?? 'An unknown error occurred.');
-      }
-      setIsLoading(false);
-    };
-
-    fetchRecipe();
-  }, []);
-  
   const handleReset = () => {
     startTransition(async () => {
       await resetRecipeOfTheDay();
@@ -113,16 +112,12 @@ export default function RecipeOfTheDay() {
     });
   };
 
-  if (isLoading) {
-    return <LoadingSkeleton />;
-  }
-
   if (error) {
     return <ErrorDisplay error={error} />;
   }
 
   if (!recipe) {
-    return null;
+    return <LoadingSkeleton />;
   }
 
   return (
@@ -162,8 +157,10 @@ export default function RecipeOfTheDay() {
             </ul>
           </div>
           <Separator />
-           <div>
-            <h3 className="text-lg font-bold font-headline mb-2">Instructions</h3>
+          <div>
+            <h3 className="text-lg font-bold font-headline mb-2">
+              Instructions
+            </h3>
             <p className="whitespace-pre-line leading-relaxed text-foreground/90 text-sm">
               {recipe.instructions.length > 300
                 ? `${recipe.instructions.substring(0, 300)}...`
@@ -172,12 +169,14 @@ export default function RecipeOfTheDay() {
           </div>
         </div>
       </CardContent>
-       <CardFooter className="justify-center">
-         <Button onClick={handleReset} disabled={isPending}>
-           <RefreshCw className={`mr-2 h-4 w-4 ${isPending ? 'animate-spin' : ''}`} />
-           {isPending ? 'Generating New Recipe...' : 'Get New Recipe'}
-         </Button>
-       </CardFooter>
+      <CardFooter className="justify-center">
+        <Button onClick={handleReset} disabled={isPending}>
+          <RefreshCw
+            className={`mr-2 h-4 w-4 ${isPending ? 'animate-spin' : ''}`}
+          />
+          {isPending ? 'Generating New Recipe...' : 'Get New Recipe'}
+        </Button>
+      </CardFooter>
     </Card>
   );
 }
