@@ -25,7 +25,8 @@ const prompt = ai.definePrompt({
   output: { schema: GenerateRecipeOutputSchema.omit({ imageUrl: true }) },
   prompt: `You are a chef responsible for creating a "Recipe of the Day" for a popular cooking website.
 
-  Your task is to generate a single, appealing, and relatively simple recipe that a home cook could make.
+  Your task is to generate a single, appealing, and relatively simple **vegetarian** recipe that a home cook could make.
+  The recipe must not contain any meat or fish.
   It should be interesting and sound delicious. Consider seasonality if you can.
   
   The recipe should include a name, a list of ingredients, and detailed instructions.
