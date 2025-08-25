@@ -20,7 +20,7 @@ export async function generateRecipeOfTheDay(): Promise<GenerateRecipeOfTheDayOu
   return generateRecipeOfTheDayFlow();
 }
 
-const prompt = ai.definePrompt({
+const recipePrompt = ai.definePrompt({
   name: 'generateRecipeOfTheDayPrompt',
   output: { schema: GenerateRecipeOutputSchema.omit({ imageUrl: true }) },
   prompt: `You are a chef responsible for creating a "Recipe of the Day" for a popular cooking website.
@@ -35,18 +35,21 @@ const prompt = ai.definePrompt({
   `,
 });
 
+
 const generateRecipeOfTheDayFlow = ai.defineFlow(
   {
     name: 'generateRecipeOfTheDayFlow',
     outputSchema: GenerateRecipeOutputSchema,
   },
   async () => {
-    const { output: recipeOutput } = await prompt({});
-
+    // Generate recipe and a placeholder for the image prompt simultaneously
+    const { output: recipeOutput } = await recipePrompt({});
+    
     if (!recipeOutput) {
       throw new Error('Recipe generation failed.');
     }
 
+    // Now generate the image based on the recipe name
     const { media } = await ai.generate({
       model: 'googleai/gemini-2.0-flash-preview-image-generation',
       prompt: `A delicious-looking, professionally photographed image of "${recipeOutput.recipeName}", with a clean, bright background.`,
