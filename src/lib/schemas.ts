@@ -1,13 +1,10 @@
+
 import { z } from 'zod';
 
 export const recipeGenerationSchema = z.object({
   ingredients: z
-    .array(
-      z.object({
-        value: z.string().min(1, { message: 'Ingredient cannot be empty.' }),
-      })
-    )
-    .min(1, { message: 'Please add at least one ingredient.' }),
+    .string()
+    .min(3, { message: 'Please list at least one ingredient.' }),
   customization: z.string().optional(),
 });
 

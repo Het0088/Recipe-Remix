@@ -1,18 +1,23 @@
+
 'use server';
 
 import { generateRecipe } from '@/ai/flows/generate-recipe';
 import { checkRecipeViability } from '@/ai/flows/check-recipe-viability';
 import { generateRecipeImage } from '@/ai/flows/generate-recipe-image';
 import { generateRecipeVariation } from '@/ai/flows/generate-recipe-variation';
-import type { RecipeViabilityValues } from '@/lib/schemas';
+import type {
+  RecipeGenerationValues,
+  RecipeViabilityValues,
+} from '@/lib/schemas';
 import type { GenerateRecipeOutput } from '@/ai/flows/generate-recipe';
 
-export async function generateRecipeAction(data: {
-  ingredients: string[];
-  customization?: string;
-}) {
+export async function generateRecipeAction(data: RecipeGenerationValues) {
   try {
-    const result = await generateRecipe(data);
+    const ingredients = data.ingredients.split(',').map((i) => i.trim()).filter(Boolean);
+    const result = await generateRecipe({
+      ingredients,
+      customization: data.customization,
+    });
     return { success: true, data: result };
   } catch (error) {
     console.error(error);

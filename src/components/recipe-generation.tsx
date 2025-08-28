@@ -1,13 +1,12 @@
+
 'use client';
 
 import { useState } from 'react';
-import { useFieldArray, useForm, useFormState } from 'react-hook-form';
+import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import Image from 'next/image';
 import {
   Loader2,
-  Minus,
-  Plus,
   Sparkles,
   UtensilsCrossed,
   Bookmark,
@@ -21,16 +20,8 @@ import {
   Beef,
   CookingPot,
   Star,
-  MessageSquareQuote,
 } from 'lucide-react';
-import {
-  addDoc,
-  collection,
-  doc,
-  getDocs,
-  query,
-  where,
-} from 'firebase/firestore';
+import { addDoc, collection, getDocs, query, where } from 'firebase/firestore';
 
 import { Button } from '@/components/ui/button';
 import {
@@ -53,7 +44,6 @@ import {
 import { useToast } from '@/hooks/use-toast';
 import {
   generateRecipeAction,
-  generateRecipeImageAction,
   generateRecipeVariationAction,
 } from '@/app/actions';
 import type { GenerateRecipeOutput } from '@/ai/flows/generate-recipe';
@@ -505,21 +495,15 @@ export default function RecipeGeneration() {
   const form = useForm<RecipeGenerationValues>({
     resolver: zodResolver(recipeGenerationSchema),
     defaultValues: {
-      ingredients: [{ value: '' }],
+      ingredients: '',
       customization: '',
     },
-  });
-
-  const { fields, append, remove } = useFieldArray({
-    control: form.control,
-    name: 'ingredients',
   });
 
   const onSubmit = async (values: RecipeGenerationValues) => {
     setIsLoading(true);
     setGeneratedRecipe(null);
-    const ingredients = values.ingredients.map((i) => i.value);
-    const result = await generateRecipeAction({ ingredients, customization: values.customization });
+    const result = await generateRecipeAction(values);
 
     if (result.success) {
       setGeneratedRecipe(result.data);
@@ -548,58 +532,32 @@ export default function RecipeGeneration() {
         <CardContent>
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-              <div className="space-y-4">
-                {fields.map((field, index) => (
-                  <FormField
-                    key={field.id}
-                    control={form.control}
-                    name={`ingredients.${index}.value`}
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel className={cn(index !== 0 && 'sr-only')}>
-                          Ingredients
-                        </FormLabel>
-                        <div className="flex items-center gap-2">
-                          <FormControl>
-                            <Input
-                              placeholder={index === 0 ? 'e.g., Tofu, tomatoes, ...' : 'Add another ingredient...'}
-                              {...field}
-                            />
-                          </FormControl>
-                          <Button
-                            type="button"
-                            variant="ghost"
-                            size="icon"
-                            onClick={() => remove(index)}
-                            disabled={fields.length <= 1}
-                            className="text-muted-foreground hover:text-destructive"
-                          >
-                            <Minus className="h-4 w-4" />
-                            <span className="sr-only">Remove ingredient</span>
-                          </Button>
-                        </div>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                ))}
-                 <Button
-                  type="button"
-                  variant="outline"
-                  size="sm"
-                  onClick={() => append({ value: '' })}
-                >
-                  <Plus className="mr-2 h-4 w-4" />
-                  Add Ingredient
-                </Button>
-              </div>
+              <FormField
+                control={form.control}
+                name="ingredients"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Ingredients</FormLabel>
+                    <FormControl>
+                      <Textarea
+                        placeholder="List all ingredients, separated by commas..."
+                        className="min-h-[100px]"
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
 
               <FormField
                 control={form.control}
                 name="customization"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Dietary Needs or Special Requests (Optional)</FormLabel>
+                    <FormLabel>
+                      Dietary Needs or Special Requests (Optional)
+                    </FormLabel>
                     <FormControl>
                       <Input
                         placeholder="e.g., Vegan, gluten-free, low-carb, for kids..."
