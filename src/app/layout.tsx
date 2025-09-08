@@ -33,7 +33,7 @@ export default function RootLayout({
       <body
         className={cn('min-h-screen font-body antialiased')}
         style={{
-          backgroundImage: `url(https://imgs.search.brave.com/6vcxSRjoRN-wbJOarXHct4ykvQikJI9ckHAcuIaFeR0/rs:fit:860:0:0:0/g:ce/aHR0cHM6Ly9pbWcu/ZnJlZXBpay5jb20v/ZnJlZS1waG90by90/b3Atdmlldy1mb29k/LWluZ3JlZGllbnRz/XzIzLTIxNDg4MzQ3/NTUuanBnP3NlbXQ9/YWlzX2h5YnJpZCZ3/PTc0MCZxPTgw)`,
+          backgroundImage: `url(https://images.unsplash.com/photo-1490818387583-1baba5e638af?q=80&w=1032&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D)`,
           backgroundSize: 'cover',
           backgroundPosition: 'center',
           backgroundAttachment: 'fixed',
