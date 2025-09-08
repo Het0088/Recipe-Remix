@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
@@ -218,7 +219,7 @@ ${recipe.instructions}
       {savedRecipes.map((recipe) => (
         <Card key={recipe.id} className="shadow-lg">
           <CardHeader>
-            <CardTitle className="text-3xl font-headline text-accent">
+            <CardTitle className="text-3xl font-headline text-primary">
               {recipe.recipeName}
             </CardTitle>
           </CardHeader>

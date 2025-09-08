@@ -348,7 +348,7 @@ ${recipe.instructions}
             />
           </div>
         )}
-        <CardTitle className="text-3xl font-headline text-accent">
+        <CardTitle className="text-3xl font-headline text-primary">
           {recipe.recipeName}
         </CardTitle>
         <CardDescription>
@@ -514,7 +514,7 @@ export default function RecipeGeneration() {
                 <Button
                   type="submit"
                   disabled={isLoading}
-                  className="flex-grow"
+                  className="bg-accent hover:bg-accent/90 text-accent-foreground flex-grow"
                 >
                   {isLoading ? (
                     <>
