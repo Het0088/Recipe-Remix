@@ -17,12 +17,6 @@ import {
   BarChart,
   Globe,
   Copy,
-  Flame,
-  Beef,
-  Wheat,
-  Salad,
-  Star,
-  MessageSquareQuote,
   Loader2,
 } from 'lucide-react';
 import {
@@ -46,7 +40,6 @@ import {
   getDocs,
   deleteDoc,
   doc,
-  query,
 } from 'firebase/firestore';
 
 interface SavedRecipe extends GenerateRecipeOutput {
@@ -78,43 +71,6 @@ function RecipeInfoBadges({ recipe }: { recipe: GenerateRecipeOutput }) {
   );
 }
 
-function NutritionalInfoDisplay({
-  nutritionalInfo,
-}: {
-  nutritionalInfo?: GenerateRecipeOutput['nutritionalInfo'];
-}) {
-  if (!nutritionalInfo) return null;
-
-  return (
-    <div>
-      <h3 className="text-xl font-bold font-headline mt-4 mb-2">
-        Nutritional Information
-      </h3>
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 text-center">
-        <Card className="p-4 bg-secondary/50">
-          <Flame className="h-6 w-6 text-primary mx-auto mb-1" />
-          <p className="font-bold text-lg">{nutritionalInfo.calories}</p>
-          <p className="text-xs text-muted-foreground">Calories</p>
-        </Card>
-        <Card className="p-4 bg-secondary/50">
-          <Beef className="h-6 w-6 text-primary mx-auto mb-1" />
-          <p className="font-bold text-lg">{nutritionalInfo.protein}</p>
-          <p className="text-xs text-muted-foreground">Protein</p>
-        </Card>
-        <Card className="p-4 bg-secondary/50">
-          <Wheat className="h-6 w-6 text-primary mx-auto mb-1" />
-          <p className="font-bold text-lg">{nutritionalInfo.carbs}</p>
-          <p className="text-xs text-muted-foreground">Carbs</p>
-        </Card>
-        <Card className="p-4 bg-secondary/50">
-          <Salad className="h-6 w-6 text-primary mx-auto mb-1" />
-          <p className="font-bold text-lg">{nutritionalInfo.fat}</p>
-          <p className="text-xs text-muted-foreground">Fat</p>
-        </Card>
-      </div>
-    </div>
-  );
-}
 
 export default function SavedRecipes() {
   const [savedRecipes, setSavedRecipes] = useState<SavedRecipe[]>([]);
@@ -192,23 +148,13 @@ export default function SavedRecipes() {
   };
 
   const handleCopyRecipe = (recipe: GenerateRecipeOutput) => {
-    const nutritionalInfoText = recipe.nutritionalInfo
-      ? `
-Nutritional Info:
-- Calories: ${recipe.nutritionalInfo.calories}
-- Protein: ${recipe.nutritionalInfo.protein}
-- Carbs: ${recipe.nutritionalInfo.carbs}
-- Fat: ${recipe.nutritionalInfo.fat}
-`
-      : '';
-
     const recipeText = `
 Recipe: ${recipe.recipeName}
 
 Cuisine: ${recipe.cuisine}
 Difficulty: ${recipe.difficulty}
 Cooking Time: ${recipe.cookingTime}
-${nutritionalInfoText}
+
 Ingredients:
 ${recipe.ingredients.join('\n')}
 
@@ -297,8 +243,6 @@ ${recipe.instructions}
                 {recipe.instructions}
               </p>
             </div>
-            {recipe.nutritionalInfo && <Separator />}
-            <NutritionalInfoDisplay nutritionalInfo={recipe.nutritionalInfo} />
           </CardContent>
           <CardFooter className="justify-between">
             <Button

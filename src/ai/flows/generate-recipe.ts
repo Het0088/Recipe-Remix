@@ -37,7 +37,6 @@ const prompt = ai.definePrompt({
   {{/if}}
   The recipe should include a name, a list of ingredients, and detailed instructions.
   Also include the difficulty level (Easy, Medium, or Hard), the estimated cooking time, and the cuisine type.
-  Provide an estimated nutritional information breakdown per serving, including calories, protein, carbs, and fat.
   Make sure the recipe is easy to follow.
   `,
 });

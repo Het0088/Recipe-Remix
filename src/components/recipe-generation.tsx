@@ -14,10 +14,6 @@ import {
   BarChart,
   Globe,
   Copy,
-  Flame,
-  Salad,
-  Wheat,
-  Beef,
   CookingPot,
   Star,
 } from 'lucide-react';
@@ -83,42 +79,6 @@ function RecipeInfoBadges({ recipe }: { recipe: GenerateRecipeOutput }) {
         <Globe className="h-3 w-3" />
         {recipe.cuisine}
       </Badge>
-    </div>
-  );
-}
-
-function NutritionalInfoDisplay({
-  nutritionalInfo,
-}: {
-  nutritionalInfo: GenerateRecipeOutput['nutritionalInfo'];
-}) {
-  return (
-    <div>
-      <h3 className="text-xl font-bold font-headline mt-4 mb-2">
-        Nutritional Information
-      </h3>
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 text-center">
-        <Card className="p-4 bg-secondary/50">
-          <Flame className="h-6 w-6 text-accent mx-auto mb-1" />
-          <p className="font-bold text-lg">{nutritionalInfo.calories}</p>
-          <p className="text-xs text-muted-foreground">Calories</p>
-        </Card>
-        <Card className="p-4 bg-secondary/50">
-          <Beef className="h-6 w-6 text-accent mx-auto mb-1" />
-          <p className="font-bold text-lg">{nutritionalInfo.protein}</p>
-          <p className="text-xs text-muted-foreground">Protein</p>
-        </Card>
-        <Card className="p-4 bg-secondary/50">
-          <Wheat className="h-6 w-6 text-accent mx-auto mb-1" />
-          <p className="font-bold text-lg">{nutritionalInfo.carbs}</p>
-          <p className="text-xs text-muted-foreground">Carbs</p>
-        </Card>
-        <Card className="p-4 bg-secondary/50">
-          <Salad className="h-6 w-6 text-accent mx-auto mb-1" />
-          <p className="font-bold text-lg">{nutritionalInfo.fat}</p>
-          <p className="text-xs text-muted-foreground">Fat</p>
-        </Card>
-      </div>
     </div>
   );
 }
@@ -356,12 +316,6 @@ Cuisine: ${recipe.cuisine}
 Difficulty: ${recipe.difficulty}
 Cooking Time: ${recipe.cookingTime}
 
-Nutritional Info:
-- Calories: ${recipe.nutritionalInfo.calories}
-- Protein: ${recipe.nutritionalInfo.protein}
-- Carbs: ${recipe.nutritionalInfo.carbs}
-- Fat: ${recipe.nutritionalInfo.fat}
-
 Ingredients:
 ${recipe.ingredients.join('\n')}
 
@@ -420,8 +374,6 @@ ${recipe.instructions}
             {recipe.instructions}
           </p>
         </div>
-        <Separator />
-        <NutritionalInfoDisplay nutritionalInfo={recipe.nutritionalInfo} />
         <UserFeedback />
       </CardContent>
       <CardFooter className="flex flex-wrap gap-2">
@@ -468,16 +420,6 @@ function LoadingSkeleton() {
             <Skeleton className="h-4 w-full rounded-md" />
             <Skeleton className="h-4 w-5/6 rounded-md" />
             <Skeleton className="h-4 w-full rounded-md" />
-          </div>
-        </div>
-        <Separator />
-        <div>
-          <Skeleton className="h-6 w-1/2 rounded-md mb-4" />
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-            <Skeleton className="h-24 w-full rounded-lg" />
-            <Skeleton className="h-24 w-full rounded-lg" />
-            <Skeleton className="h-24 w-full rounded-lg" />
-            <Skeleton className="h-24 w-full rounded-lg" />
           </div>
         </div>
       </CardContent>

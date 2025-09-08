@@ -19,16 +19,6 @@ export const GenerateRecipeOutputSchema = z.object({
   cuisine: z
     .string()
     .describe('The cuisine type of the recipe (e.g., Italian, Mexican).'),
-  nutritionalInfo: z
-    .object({
-      calories: z.string().describe('Estimated calories per serving.'),
-      protein: z.string().describe('Estimated protein in grams per serving.'),
-      carbs: z
-        .string()
-        .describe('Estimated carbohydrates in grams per serving.'),
-      fat: z.string().describe('Estimated fat in grams per serving.'),
-    })
-    .describe('The estimated nutritional information per serving.'),
   imageUrl: z.string().describe("A data URI of the generated image. Expected format: 'data:<mimetype>;base64,<encoded_data>'.").optional(),
 });
 
