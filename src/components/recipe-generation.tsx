@@ -99,22 +99,22 @@ function NutritionalInfoDisplay({
       </h3>
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 text-center">
         <Card className="p-4 bg-secondary/50">
-          <Flame className="h-6 w-6 text-primary mx-auto mb-1" />
+          <Flame className="h-6 w-6 text-accent mx-auto mb-1" />
           <p className="font-bold text-lg">{nutritionalInfo.calories}</p>
           <p className="text-xs text-muted-foreground">Calories</p>
         </Card>
         <Card className="p-4 bg-secondary/50">
-          <Beef className="h-6 w-6 text-primary mx-auto mb-1" />
+          <Beef className="h-6 w-6 text-accent mx-auto mb-1" />
           <p className="font-bold text-lg">{nutritionalInfo.protein}</p>
           <p className="text-xs text-muted-foreground">Protein</p>
         </Card>
         <Card className="p-4 bg-secondary/50">
-          <Wheat className="h-6 w-6 text-primary mx-auto mb-1" />
+          <Wheat className="h-6 w-6 text-accent mx-auto mb-1" />
           <p className="font-bold text-lg">{nutritionalInfo.carbs}</p>
           <p className="text-xs text-muted-foreground">Carbs</p>
         </Card>
         <Card className="p-4 bg-secondary/50">
-          <Salad className="h-6 w-6 text-primary mx-auto mb-1" />
+          <Salad className="h-6 w-6 text-accent mx-auto mb-1" />
           <p className="font-bold text-lg">{nutritionalInfo.fat}</p>
           <p className="text-xs text-muted-foreground">Fat</p>
         </Card>
@@ -443,7 +443,6 @@ function LoadingSkeleton() {
   return (
     <Card className="mt-8 shadow-lg">
       <CardHeader>
-        <Skeleton className="h-64 w-full rounded-md" />
         <Skeleton className="h-8 w-3/4 rounded-md mt-4" />
         <Skeleton className="h-4 w-1/2 rounded-md mt-2" />
       </CardHeader>

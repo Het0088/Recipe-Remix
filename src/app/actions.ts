@@ -29,16 +29,16 @@ export async function generateRecipeAction(data: RecipeGenerationValues) {
 }
 
 export async function checkRecipeViabilityAction(data: RecipeViabilityValues) {
-  try {
-    const result = await checkRecipeViability(data);
-    return { success: true, data: result };
-  } catch (error) {
-    console.error(error);
+  // try {
+  //   const result = await checkRecipeViability(data);
+  //   return { success: true, data: result };
+  // } catch (error) {
+  //   console.error(error);
     return {
       success: false,
-      error: 'Failed to check recipe viability. Please try again.',
+      error: 'This feature is coming soon!',
     };
-  }
+  // }
 }
 
 export async function generateRecipeImageAction(data: { recipeName: string }) {

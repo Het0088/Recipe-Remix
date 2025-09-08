@@ -32,6 +32,7 @@ import { checkRecipeViabilityAction } from '@/app/actions';
 import type { CheckRecipeViabilityOutput } from '@/ai/flows/check-recipe-viability';
 import { cn } from '@/lib/utils';
 import { Progress } from './ui/progress';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from './ui/tooltip';
 
 function ViabilityResultDisplay({
   result,
@@ -114,7 +115,7 @@ export default function CheckViability() {
     } else {
       toast({
         variant: 'destructive',
-        title: 'Error',
+        title: 'Feature Coming Soon',
         description: result.error,
       });
     }
@@ -187,23 +188,23 @@ export default function CheckViability() {
                 )}
               />
               <div className="flex justify-end">
-                <Button
-                  type="submit"
-                  disabled={isLoading}
-                  className="bg-accent hover:bg-accent/90 text-accent-foreground"
-                >
-                  {isLoading ? (
-                    <>
-                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                      Analyzing...
-                    </>
-                  ) : (
-                    <>
-                      <Sparkles className="mr-2 h-4 w-4" />
-                      Check Viability
-                    </>
-                  )}
-                </Button>
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Button
+                        type="submit"
+                        disabled={true}
+                        className="bg-accent hover:bg-accent/90 text-accent-foreground"
+                      >
+                        <Sparkles className="mr-2 h-4 w-4" />
+                        Check Viability
+                      </Button>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p>This feature is coming soon!</p>
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
               </div>
             </form>
           </Form>

@@ -9,7 +9,7 @@ export default function CheckViabilityPage() {
             Check Your Recipe's Viability
           </h1>
           <p className="mt-4 text-lg text-foreground/80 max-w-2xl mx-auto">
-            Got a recipe idea? Let our AI chef take a look and give you feedback on its viability.
+            Got a recipe idea? Let our AI chef take a look and give you feedback on its viability. (Coming Soon!)
           </p>
         </div>
         <CheckViability />

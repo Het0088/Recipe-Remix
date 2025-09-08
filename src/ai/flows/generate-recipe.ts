@@ -49,27 +49,15 @@ const generateRecipeFlow = ai.defineFlow(
     outputSchema: GenerateRecipeOutputSchema,
   },
   async input => {
-    const [{output: recipeOutput}, {media}] = await Promise.all([
-      prompt(input),
-      ai.generate({
-        model: 'googleai/gemini-2.0-flash-preview-image-generation',
-        prompt: `A delicious-looking, professionally photographed image of a recipe made with the following ingredients: ${input.ingredients.join(', ')}, with a clean, bright background.`,
-        config: {
-          responseModalities: ['TEXT', 'IMAGE'],
-        },
-      }),
-    ]);
+    const {output: recipeOutput} = await prompt(input);
     
     if (!recipeOutput) {
       throw new Error('Recipe generation failed.');
     }
-    if (!media.url) {
-      throw new Error('Image generation failed.');
-    }
 
     return {
       ...recipeOutput,
-      imageUrl: media.url,
+      imageUrl: '', // Return empty string as image is disabled
     };
   }
 );
