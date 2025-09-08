@@ -33,14 +33,14 @@ export default function RootLayout({
       <body
         className={cn('min-h-screen font-body antialiased')}
         style={{
-          backgroundImage: `url(/background.jpg)`,
+          backgroundImage: `url(https://img.freepik.com/premium-photo/concept-cooking-preparing-food-with-recipe-book_185193-124722.jpg)`,
           backgroundSize: 'cover',
           backgroundPosition: 'center',
           backgroundAttachment: 'fixed',
         }}
       >
         <AuthProvider>
-          <div className="relative flex min-h-dvh flex-col bg-background/80 backdrop-blur-sm">
+          <div className="relative flex min-h-dvh flex-col bg-background/85 backdrop-blur-md">
             <Header />
             <main className="flex-1 flex flex-col">
               <div className="flex-1 flex flex-col">{children}</div>
