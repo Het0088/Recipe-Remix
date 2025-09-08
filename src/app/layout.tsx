@@ -40,7 +40,7 @@ export default function RootLayout({
         }}
       >
         <AuthProvider>
-          <div className="relative flex min-h-dvh flex-col bg-background/85 backdrop-blur-sm">
+          <div className="relative flex min-h-dvh flex-col">
             <Header />
             <main className="flex-1 flex flex-col">
               <div className="flex-1 flex flex-col">{children}</div>
