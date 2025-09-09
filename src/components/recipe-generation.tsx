@@ -514,7 +514,7 @@ export default function RecipeGeneration() {
                 <Button
                   type="submit"
                   disabled={isLoading}
-                  className="bg-accent hover:bg-accent/90 text-accent-foreground flex-grow"
+                  className="bg-primary hover:bg-primary/90 text-primary-foreground flex-grow"
                 >
                   {isLoading ? (
                     <>
